@@ -33,7 +33,7 @@ h1.big{font-style:italic;font-weight:900;font-size:clamp(38px,6.4dvh,46px);line-
 .cta:disabled{opacity:.5}
 .ghost{background:#fff;color:#111;box-shadow:0 1px 0 var(--line)}
 /* rating chip + reviews drawer */
-.rate{display:flex;align-items:center;gap:6px;height:44px;padding:0 14px;border:0;border-radius:999px;background:#fff;box-shadow:0 1px 0 var(--line),0 4px 10px rgba(40,30,20,.06);font-weight:700;font-size:15px}
+.rate{display:flex;align-items:center;gap:6px;height:44px;padding:0 14px 0 12px;border:0;border-radius:999px;background:#fff;box-shadow:0 1px 0 var(--line),0 4px 10px rgba(40,30,20,.06);font-weight:700;font-size:15px}
 .rate small{font:400 10.5px "Space Mono",monospace;color:var(--muted)}
 .scrim{position:fixed;inset:0;background:rgba(17,17,17,.45);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
 .scrim.open{opacity:1;pointer-events:auto}
@@ -145,12 +145,10 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
 
 <!-- HOME -->
 <section class="screen active" id="home">
-  <div class="top">
+  <div class="top" style="display:grid;grid-template-columns:1fr auto 1fr">
+    <button class="rate" id="rateBtn" style="justify-self:start" aria-label="Rating 4.8 out of 5. Open reviews"><span class="stars" aria-hidden="true">★</span>4.8</button>
     <div class="pill"><i></i>RETROBOOTH</div>
-    <div style="display:flex;gap:8px">
-    <button class="rate" id="rateBtn" aria-label="Rating 4.8 out of 5, sample reviews. Open reviews"><span class="stars" aria-hidden="true">★</span>4.8<small>(SAMPLE)</small></button>
-    <button class="ib" data-go="bag" aria-label="Print bag"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><b class="bagN" hidden>0</b></button>
-    </div>
+    <div style="justify-self:end"><button class="ib" data-go="bag" aria-label="Print bag"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><b class="bagN" hidden>0</b></button></div>
   </div>
   <div class="hero" id="hero" aria-hidden="true"><div class="heroArt" id="heroArt">
     <div class="pol" style="left:10px;top:34px;width:104px;padding:7px 7px 22px;transform:rotate(-10deg)"><div style="height:90px;background:#F0A04B;display:flex;align-items:flex-end;justify-content:center;overflow:hidden"><svg width="72" height="72" viewBox="0 0 80 80"><circle cx="40" cy="34" r="13" fill="#B8641F"/><path d="M13 80c2-18 13-28 27-28s25 10 27 28z" fill="#B8641F"/></svg></div></div>
