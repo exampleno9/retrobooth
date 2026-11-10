@@ -137,6 +137,33 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
 .ticket{background:#fff;border-radius:24px;padding:26px;text-align:center;margin-top:40px;box-shadow:0 14px 28px rgba(40,30,20,.12)}
 .ticket .big{font-style:italic;font-weight:900;font-size:40px;margin:8px 0}
 .proto{font-size:12px;color:var(--muted);line-height:1.5;margin-top:16px}
+/* ---- subtle motion ---- */
+.tile,.cta,.ib,.rate,.size,.chip,.shutter,.qty button{transition:transform .12s ease,box-shadow .15s ease,background-color .15s ease,color .15s ease}
+.tile:active,.cta:active,.ib:active,.rate:active,.size:active,.chip:active,.qty button:active{transform:scale(.97)}
+.shutter:active{transform:scale(.93)}
+@keyframes wig{0%,100%{rotate:0deg}35%{rotate:-5deg}70%{rotate:3deg}}
+@keyframes pop{50%{scale:1.25}}
+@keyframes fadeUp{from{opacity:0;translate:0 8px}to{opacity:1;translate:0 0}}
+@keyframes settle{from{opacity:0;translate:0 -10px}to{opacity:1;translate:0 0}}
+@keyframes pulse{0%,72%,100%{scale:1}86%{scale:1.25}}
+@keyframes tick{0%{scale:1.35;opacity:0}25%{scale:1;opacity:1}100%{opacity:.85}}
+.tile.on>:first-child{animation:wig .35s ease}
+.heroArt>*{animation:settle .5s cubic-bezier(.3,1.3,.5,1) both}
+.heroArt>:nth-child(2){animation-delay:.08s}.heroArt>:nth-child(3){animation-delay:.16s}
+.rate .stars{display:inline-block}.rate.pop .stars{animation:pop .3s ease}
+.sheet.open .rv{animation:fadeUp .3s ease both}
+.bagN.pop{animation:pop .3s ease}
+.cta i{animation:pulse 3s ease-in-out infinite}
+.count.tick{animation:tick .75s ease-out}
+.pstrip>div.new,.ppol>div.new{animation:fadeUp .3s ease both}
+.fbtn.flip{animation:fadeUp .2s ease}
+.size.on .badge{animation:wig .35s ease}
+.enter .item{animation:fadeUp .25s ease both}
+.qty span.pop{display:inline-block;animation:pop .25s ease}
+.bar i{transition:width .45s ease}
+.item.out{transition:opacity .2s ease,transform .2s ease;opacity:0;transform:translateX(-30px)}
+.ticket{animation:fadeUp .4s cubic-bezier(.3,1.3,.5,1) both}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -297,14 +324,14 @@ const shotDims=()=>S.mode==='strip'?[1080,810]:[960,960];
 
 function show(id){
   if(id!=='camera')stopCam();
-  if(id==='bag')renderBag();
+  if(id==='bag'){renderBag();const it=$('#items');it.classList.add('enter');setTimeout(()=>it.classList.remove('enter'),500);}
   $$('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   scrollTo(0,0);
   if(id==='home')requestAnimationFrame(fitHero);
 }
 $$('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go)));
 function flash(){const f=$('#flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
-function updateBagCount(){const n=S.bag.reduce((a,b)=>a+b.qty,0);$$('.bagN').forEach(b=>{b.textContent=n;b.hidden=!n;});}
+function updateBagCount(){const n=S.bag.reduce((a,b)=>a+b.qty,0),up=n>(S._lastBag||0);S._lastBag=n;$$('.bagN').forEach(b=>{b.textContent=n;b.hidden=!n;if(up){b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');}});}
 
 /* HOME: scale the illustration to fit the space so the CTA stays on screen */
 function fitHero(){
@@ -359,7 +386,7 @@ function noCam(reason){
     :'Camera couldn\'t start.<br><u>Tap here to try again</u>, or use the red button to pick photos.';
 }
 function stopCam(){if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}}
-function applyLiveFilter(){$('#video').style.filter=CSSF[S.filter];$('#filterBtn').textContent=FNAME[S.filter];$('#vstatR').textContent=FNAME[S.filter]+' · '+(S.mode==='strip'?'4:3':'1:1');}
+function applyLiveFilter(){$('#video').style.filter=CSSF[S.filter];const fb=$('#filterBtn');fb.textContent=FNAME[S.filter];fb.classList.remove('flip');void fb.offsetWidth;fb.classList.add('flip');$('#vstatR').textContent=FNAME[S.filter]+' · '+(S.mode==='strip'?'4:3':'1:1');}
 $('#filterBtn').addEventListener('click',()=>{S.filter=FILTERS[(FILTERS.indexOf(S.filter)+1)%4];applyLiveFilter();renderProgress();});
 $('#nocam').addEventListener('click',()=>startStream());
 $('#flipBtn').addEventListener('click',()=>{S.facing=S.facing==='user'?'environment':'user';startStream();});
@@ -368,11 +395,12 @@ function renderProgress(){
   const box=$('#progVis'),n=S.shots.length,N=need();
   if(S.mode==='strip'){
     box.className='strip pstrip';box.innerHTML='';
-    for(let i=0;i<4;i++){const d=document.createElement('div');if(S.shots[i])d.style.backgroundImage=`url(${thumb(S.shots[i])})`;else if(i===n)d.className='cur';box.appendChild(d);}
+    for(let i=0;i<4;i++){const d=document.createElement('div');if(S.shots[i]){d.style.backgroundImage=`url(${thumb(S.shots[i])})`;if(i===n-1&&S._lastN!==n)d.className='new';}else if(i===n)d.className='cur';box.appendChild(d);}
   }else{
     box.className='ppol';box.innerHTML='<div></div>';
-    if(S.shots[0])box.firstChild.style.backgroundImage=`url(${thumb(S.shots[0])})`;
+    if(S.shots[0]){box.firstChild.style.backgroundImage=`url(${thumb(S.shots[0])})`;if(S._lastN!==n)box.firstChild.className='new';}
   }
+  S._lastN=n;
   const k=Math.min(n+1,N);
   $('#vstatL').textContent=N>1?`● POSE ${k} OF 4`:'● READY';
   $('#poseH').textContent=N>1?`Pose ${k} of 4`:'Say cheese';
@@ -388,7 +416,7 @@ $('#shutter').addEventListener('click',async()=>{
   if(v.paused){try{await v.play();}catch(e){}}
   if(!v.videoWidth)await new Promise(r=>{v.onloadedmetadata=r;setTimeout(r,1500);});
   while(S.shots.length<need()){
-    for(let i=3;i>0;i--){$('#count').textContent=i;await sleep(800);}
+    for(let i=3;i>0;i--){const c=$('#count');c.textContent=i;c.classList.remove('tick');void c.offsetWidth;c.classList.add('tick');await sleep(800);}
     $('#count').textContent='';flash();
     S.shots.push(cropTo(v,v.videoWidth,v.videoHeight,w,h,S.facing==='user'));
     renderProgress();
@@ -507,15 +535,16 @@ function renderBag(){
   S.bag.forEach((it,i)=>{
     const sizeTxt=it.size==='both'?'BIG + PHONE MINI':it.size==='mini'?'PHONE MINI · '+SIZES[it.mode].mini:SIZES[it.mode].regular;
     const el=document.createElement('div');el.className='item';
-    el.innerHTML=`<img src="${it.img}" alt=""><div class="m">${it.mode==='strip'?'Photo strip':'Polaroid'}<small>${sizeTxt} · ${FNAME[it.filter]}${it.caption?' · “'+esc(it.caption)+'”':''}</small><small>₹${it.price} EACH</small><button class="rm">REMOVE</button></div><div class="qty"><button aria-label="Less">−</button><span>${it.qty}</span><button aria-label="More">+</button></div>`;
+    el.innerHTML=`<img src="${it.img}" alt=""><div class="m">${it.mode==='strip'?'Photo strip':'Polaroid'}<small>${sizeTxt} · ${FNAME[it.filter]}${it.caption?' · “'+esc(it.caption)+'”':''}</small><small>₹${it.price} EACH</small><button class="rm">REMOVE</button></div><div class="qty"><button aria-label="Less">−</button><span class="${S._popIdx===i?'pop':''}">${it.qty}</span><button aria-label="More">+</button></div>`;
     const [mi,pl]=el.querySelectorAll('.qty button');
-    mi.onclick=()=>{it.qty=Math.max(1,it.qty-1);updateBagCount();renderBag();};
-    pl.onclick=()=>{it.qty=Math.min(20,it.qty+1);updateBagCount();renderBag();};
-    el.querySelector('.rm').onclick=()=>{S.bag.splice(i,1);updateBagCount();renderBag();};
+    mi.onclick=()=>{it.qty=Math.max(1,it.qty-1);S._popIdx=i;updateBagCount();renderBag();S._popIdx=null;};
+    pl.onclick=()=>{it.qty=Math.min(20,it.qty+1);S._popIdx=i;updateBagCount();renderBag();S._popIdx=null;};
+    el.querySelector('.rm').onclick=()=>{el.classList.add('out');setTimeout(()=>{S.bag.splice(i,1);updateBagCount();renderBag();},200);};
     box.appendChild(el);
   });
-  const t=totals(),pct=Math.min(100,Math.round(t.sub/FREE_OVER*100));
-  $('#sum').innerHTML=`<div><span>Prints</span><span>₹${t.sub}</span></div><div><span>Delivery</span><span>${t.ship?'₹'+t.ship:'Free'}</span></div>${t.ship?`<div class="bar"><i style="width:${pct}%"></i></div><p class="hint mono">ADD ₹${FREE_OVER-t.sub} MORE FOR FREE DELIVERY</p>`:''}<div class="tot"><span>Total</span><span>₹${t.tot}</span></div>`;
+  const t=totals(),pct=Math.min(100,Math.round(t.sub/FREE_OVER*100)),from=S._prevPct==null?pct:S._prevPct;S._prevPct=pct;
+  $('#sum').innerHTML=`<div><span>Prints</span><span>₹${t.sub}</span></div><div><span>Delivery</span><span>${t.ship?'₹'+t.ship:'Free'}</span></div>${t.ship?`<div class="bar"><i style="width:${from}%"></i></div><p class="hint mono">ADD ₹${FREE_OVER-t.sub} MORE FOR FREE DELIVERY</p>`:`<p class="hint mono" style="color:var(--accent)">FREE DELIVERY UNLOCKED ✦</p>`}<div class="tot"><span>Total</span><span>₹${t.tot}</span></div>`;
+  const bi=$('#sum .bar i');if(bi)requestAnimationFrame(()=>requestAnimationFrame(()=>{bi.style.width=pct+'%';}));
   $('#payLabel').textContent='Pay ₹'+t.tot+' with UPI';
 }
 $$('#ph,#pin').forEach(i=>i.addEventListener('input',()=>{i.value=i.value.replace(/\D/g,'');}));
@@ -542,11 +571,11 @@ const REVIEWS=[
 ];
 function renderReviews(){
   $('#dist').innerHTML=DIST.map(([k,v])=>`<div>${k}<i><b style="width:${v}%"></b></i></div>`).join('');
-  $('#rvList').innerHTML=REVIEWS.map(r=>`<article class="rv"><div class="who"><span class="av" style="background:${r.col}">${r.n[0]}</span><div><b>${r.n}</b><small>${r.c.toUpperCase()} · ${r.d.toUpperCase()}</small></div></div><div class="stars" style="margin-top:10px" aria-label="${r.r} out of 5">${'★'.repeat(r.r)}<span style="color:#D8D4CB">${'★'.repeat(5-r.r)}</span></div><p>${r.t}</p><span class="tag">${r.p}</span></article>`).join('');
+  $('#rvList').innerHTML=REVIEWS.map((r,i)=>`<article class="rv" style="animation-delay:${i*40}ms"><div class="who"><span class="av" style="background:${r.col}">${r.n[0]}</span><div><b>${r.n}</b><small>${r.c.toUpperCase()} · ${r.d.toUpperCase()}</small></div></div><div class="stars" style="margin-top:10px" aria-label="${r.r} out of 5">${'★'.repeat(r.r)}<span style="color:#D8D4CB">${'★'.repeat(5-r.r)}</span></div><p>${r.t}</p><span class="tag">${r.p}</span></article>`).join('');
 }
 function openRv(o){$('#scrim').classList.toggle('open',o);const sh=$('#sheet');sh.classList.toggle('open',o);sh.setAttribute('aria-hidden',!o);document.body.style.overflow=o?'hidden':'';if(o)$('#closeRv').focus();}
 renderReviews();
-$('#rateBtn').addEventListener('click',()=>openRv(true));
+$('#rateBtn').addEventListener('click',()=>{const b=$('#rateBtn');b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');setTimeout(()=>openRv(true),120);});
 $('#closeRv').addEventListener('click',()=>openRv(false));
 $('#scrim').addEventListener('click',()=>openRv(false));
 addEventListener('keydown',e=>{if(e.key==='Escape')openRv(false);});
