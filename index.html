@@ -229,7 +229,7 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
   <label class="lb">SIZE</label>
   <div class="sizes" id="sizes"></div>
   <button class="cta" id="addBtn" style="margin-top:18px"><i></i><span id="addLabel">Add to bag</span></button>
-  <p class="foot mono">PREVIEW IS WATERMARKED · YOUR PRINT ISN'T</p>
+  <p class="foot mono">NO DOWNLOADS · ONLY PRINTS</p>
 </section>
 
 <!-- BAG -->
@@ -454,7 +454,11 @@ async function compose(watermark){
 /* PREVIEW */
 function toPreview(){stopCam();$('#cap').value=S.caption;show('preview');renderSizes();render(true);}
 async function render(animate){
-  const c=await compose(true),url=c.toDataURL('image/jpeg',.85);S.composed=url;
+  // no watermark: the on-screen preview is a small, low-res copy, so a screenshot isn't print quality.
+  // The full 300 DPI file is only made for printing.
+  const full=await compose(false),k=(S.mode==='strip'?220:400)/full.width;
+  const c=mk(Math.round(full.width*k),Math.round(full.height*k));c.getContext('2d').drawImage(full,0,0,c.width,c.height);
+  const url=c.toDataURL('image/jpeg',.72);S.composed=url;
   const strip=S.mode==='strip',big=$('#outBig'),mini=$('#outMini');
   // true relative scale: mini is exactly half (strip) / ~0.57 (polaroid) of regular
   // fixed stage height (tallest print + label) so switching sizes never moves the controls below
