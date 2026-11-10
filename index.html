@@ -52,7 +52,8 @@ h1.big{font-style:italic;font-weight:900;font-size:clamp(42px,7svh,52px);line-he
 .grid3{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:33.33% 33.33%;pointer-events:none}
 .vstat{position:absolute;left:14px;right:14px;top:12px;display:flex;justify-content:space-between;font-size:11px;color:#F2C14E}
 .count{position:absolute;inset:0;display:grid;place-items:center;font-style:italic;font-weight:900;font-size:120px;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.5);pointer-events:none}
-.nocam{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#C9C9D0;font-size:14px;line-height:1.5;padding:30px}
+.nocam{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#C9C9D0;font-size:14px;line-height:1.5;padding:30px;cursor:pointer;z-index:2}
+[hidden]{display:none!important}
 .prog{display:flex;gap:20px;align-items:center;margin-top:24px}
 .pstrip{flex:none;width:60px;height:180px;padding:3px 3px 0;gap:2px;transform:rotate(-3deg);box-shadow:0 10px 18px rgba(40,30,20,.16)}
 .pstrip>div{background:#ECE9E2;background-size:cover;background-position:center}
@@ -285,17 +286,28 @@ async function openCamera(){
 }
 async function startStream(){
   stopCam();const v=$('#video');
-  try{
-    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw 0;
-    const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:S.facing,width:{ideal:1280}},audio:false});
-    S.stream=s;v.srcObject=s;await v.play();v.hidden=false;$('#nocam').hidden=true;
-    v.classList.toggle('mirror',S.facing==='user');
-  }catch(e){v.hidden=true;$('#nocam').hidden=false;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){noCam('unsupported');return;}
+  let st;
+  try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:S.facing},width:{ideal:1280},height:{ideal:960}},audio:false});}
+  catch(e){noCam(e&&e.name);return;}
+  // camera granted: show the live view (play() must run on a visible element on iOS)
+  S.stream=st;$('#nocam').hidden=true;v.hidden=false;
+  v.muted=true;v.setAttribute('playsinline','');v.srcObject=st;
+  v.classList.toggle('mirror',S.facing==='user');
+  try{await v.play();}catch(e){/* some browsers need a tap; the shutter tap will start it */}
   applyLiveFilter();
+}
+function noCam(reason){
+  $('#video').hidden=true;const n=$('#nocam');n.hidden=false;
+  n.innerHTML=reason==='NotAllowedError'||reason==='SecurityError'
+    ?'Camera access is off.<br>Allow the camera for this site in your browser settings, then <u>tap here to try again</u>.'
+    :reason==='NotFoundError'?'No camera found on this device.<br>Tap the red button to pick photos instead.'
+    :'Camera couldn\'t start.<br><u>Tap here to try again</u>, or use the red button to pick photos.';
 }
 function stopCam(){if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}}
 function applyLiveFilter(){$('#video').style.filter=CSSF[S.filter];$('#filterBtn').textContent=FNAME[S.filter];$('#vstatR').textContent=FNAME[S.filter]+' · '+(S.mode==='strip'?'4:3':'1:1');}
 $('#filterBtn').addEventListener('click',()=>{S.filter=FILTERS[(FILTERS.indexOf(S.filter)+1)%4];applyLiveFilter();renderProgress();});
+$('#nocam').addEventListener('click',()=>startStream());
 $('#flipBtn').addEventListener('click',()=>{S.facing=S.facing==='user'?'environment':'user';startStream();});
 $('#undoBtn').addEventListener('click',()=>{if(S.busy)return;S.shots.pop();renderProgress();});
 
@@ -320,6 +332,8 @@ $('#shutter').addEventListener('click',async()=>{
   if(!S.stream){$('#fileIn').click();return;}
   S.busy=true;$('#shutter').disabled=true;
   const v=$('#video'),[w,h]=shotDims();
+  if(v.paused){try{await v.play();}catch(e){}}
+  if(!v.videoWidth)await new Promise(r=>{v.onloadedmetadata=r;setTimeout(r,1500);});
   while(S.shots.length<need()){
     for(let i=3;i>0;i--){$('#count').textContent=i;await sleep(800);}
     $('#count').textContent='';flash();
