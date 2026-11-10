@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RetroBooth — prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,700;1,800;1,900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F0EB;--dot:#DEDAD0;--ink:#111;--muted:#55524B;--accent:#E8412C;--line:#E2DED4}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:"Archivo",system-ui,sans-serif}
+body{background-image:radial-gradient(var(--dot) 1.1px,transparent 1.1px);background-size:20px 20px;min-height:100vh}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:430px;margin:0 auto;padding:16px 20px 24px;min-height:100vh;min-height:100svh;display:flex;flex-direction:column}
+.screen{display:none;flex-direction:column;flex:1;animation:fade .3s ease}
+.screen.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mono{font-family:"Space Mono",monospace;letter-spacing:.05em}
+.top{display:flex;align-items:center;justify-content:space-between;height:44px}
+.ib{width:44px;height:44px;border-radius:999px;border:0;background:#fff;box-shadow:0 1px 0 var(--line),0 4px 10px rgba(40,30,20,.06);display:flex;align-items:center;justify-content:center;position:relative}
+.ib b{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:999px;background:var(--accent);color:#fff;font:700 11px/18px "Space Mono",monospace;padding:0 4px}
+.pill{display:flex;align-items:center;gap:8px;background:#111;color:#fff;border-radius:999px;padding:8px 14px 8px 12px;font-style:italic;font-weight:900;font-size:14px;letter-spacing:.04em}
+.pill i{width:9px;height:9px;border-radius:999px;background:var(--accent);display:block}
+h1.big{font-style:italic;font-weight:900;font-size:clamp(42px,7svh,52px);line-height:.95;letter-spacing:-.02em}
+.sub{font-size:16px;line-height:1.45;color:var(--muted);max-width:310px}
+.foot{text-align:center;font-size:10.5px;color:var(--muted);margin-top:14px}
+.push{flex:1 1 auto;min-height:24px}
+.cta{display:flex;align-items:center;justify-content:center;gap:12px;height:60px;border:0;border-radius:999px;background:#111;color:#fff;font-style:italic;font-weight:900;font-size:19px;width:100%}
+.cta i{width:12px;height:12px;border-radius:999px;background:var(--accent)}
+.cta:active{transform:translateY(2px)}
+.cta:disabled{opacity:.5}
+.ghost{background:#fff;color:#111;box-shadow:0 1px 0 var(--line)}
+/* hero */
+.hero{position:relative;height:clamp(140px,calc(100svh - 515px),290px);margin-top:8px;flex:none}
+.heroArt{position:absolute;left:50%;top:0;width:350px;height:290px;transform-origin:top center;transform:translateX(-50%) scale(var(--s,1))}
+.pol{position:absolute;background:#fff;box-shadow:0 10px 20px rgba(40,30,20,.16);border-radius:3px}
+.strip{background:#fff;display:flex;flex-direction:column}
+.strip>div{width:100%;aspect-ratio:4/3}
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px}
+.tile{text-align:left;border:0;border-radius:20px;padding:14px;background:#fff;box-shadow:0 1px 0 var(--line),0 6px 14px rgba(40,30,20,.06);display:flex;flex-direction:column;gap:6px;min-height:118px}
+.tile.on{box-shadow:0 0 0 2.5px #111,0 6px 14px rgba(40,30,20,.06)}
+.tile strong{font-style:italic;font-weight:900;font-size:19px;margin-top:auto}
+.tile span{font-size:11px;color:#4A4740}
+/* camera */
+.vf{position:relative;width:100%;border-radius:24px;background:#1A1A1D;overflow:hidden;box-shadow:0 0 0 6px #fff,0 14px 28px rgba(40,30,20,.18);margin-top:16px}
+.vf.strip-vf{aspect-ratio:4/3}.vf.pol-vf{aspect-ratio:1/1}
+.vf video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.vf video.mirror{transform:scaleX(-1)}
+.grid3{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:33.33% 33.33%;pointer-events:none}
+.vstat{position:absolute;left:14px;right:14px;top:12px;display:flex;justify-content:space-between;font-size:11px;color:#F2C14E}
+.count{position:absolute;inset:0;display:grid;place-items:center;font-style:italic;font-weight:900;font-size:120px;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.5);pointer-events:none}
+.nocam{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#C9C9D0;font-size:14px;line-height:1.5;padding:30px}
+.prog{display:flex;gap:20px;align-items:center;margin-top:24px}
+.pstrip{flex:none;width:60px;height:180px;padding:3px 3px 0;gap:2px;transform:rotate(-3deg);box-shadow:0 10px 18px rgba(40,30,20,.16)}
+.pstrip>div{background:#ECE9E2;background-size:cover;background-position:center}
+.pstrip>div.cur{background:#fff;outline:2px dashed var(--accent);outline-offset:-2px}
+.ppol{flex:none;width:96px;height:117px;padding:5px 5px 0;background:#fff;transform:rotate(-3deg);box-shadow:0 10px 18px rgba(40,30,20,.16)}
+.ppol>div{width:100%;aspect-ratio:1/1;background:#ECE9E2;background-size:cover;background-position:center}
+.prog h2{font-style:italic;font-weight:900;font-size:34px;line-height:1;margin:6px 0}
+.ctrl{display:flex;align-items:center;justify-content:space-between;padding:0 12px}
+.shutter{width:88px;height:88px;border-radius:999px;border:6px solid #fff;background:var(--accent);box-shadow:inset 0 -5px 0 rgba(0,0,0,.18),0 12px 22px rgba(120,30,20,.25);display:flex;align-items:center;justify-content:center}
+.shutter:disabled{opacity:.6}
+.small{width:52px;height:52px}
+.fbtn{background:#111;color:#fff;font:700 11px "Space Mono",monospace}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:50}
+#flash.go{animation:fl .45s ease-out}
+@keyframes fl{0%{opacity:.95}100%{opacity:0}}
+/* preview */
+.stage{display:flex;align-items:flex-end;justify-content:center;gap:22px;margin-top:18px;min-height:300px}
+.stage figure{display:flex;flex-direction:column;align-items:center;gap:8px}
+.stage img{display:block;box-shadow:0 14px 28px rgba(40,30,20,.22),0 2px 4px rgba(40,30,20,.12);-webkit-touch-callout:none;user-select:none;pointer-events:none}
+.stage figcaption{font-size:10.5px;color:var(--muted)}
+.dev{animation:dev 3s ease-out}
+@keyframes dev{0%{filter:brightness(.12) sepia(1) blur(3px);transform:translateY(-24px)}100%{filter:none}}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.chip{border:0;background:#fff;box-shadow:0 1px 0 var(--line);border-radius:999px;height:36px;padding:0 14px;font:700 12px "Space Mono",monospace}
+.chip.on{background:#111;color:#fff}
+.field{width:100%;border:0;border-radius:14px;background:#fff;box-shadow:0 1px 0 var(--line);padding:14px;font-size:16px}
+label.lb{display:block;font:11px "Space Mono",monospace;letter-spacing:.05em;color:var(--muted);margin:16px 0 6px}
+.sizes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.size{position:relative;border:0;border-radius:16px;background:#fff;box-shadow:0 1px 0 var(--line);padding:12px 10px;text-align:left;display:flex;flex-direction:column;gap:3px}
+.size.on{box-shadow:0 0 0 2.5px #111}
+.size strong{font-style:italic;font-weight:900;font-size:16px}
+.size span{font-size:10px;color:#4A4740}
+.size em{font-style:normal;font-weight:700;font-size:15px;margin-top:4px}
+.badge{position:absolute;top:-9px;right:8px;background:var(--accent);color:#fff;border-radius:999px;padding:2px 7px;font:700 9px "Space Mono",monospace}
+/* bag */
+h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
+.item{display:flex;gap:12px;align-items:center;background:#fff;border-radius:16px;padding:10px;box-shadow:0 1px 0 var(--line);margin-bottom:10px}
+.item img{width:44px;height:66px;object-fit:contain;background:#F2F0EB;border-radius:4px}
+.item .m{flex:1;font-weight:700;font-size:15px}
+.item .m small{display:block;font:400 10.5px "Space Mono",monospace;color:var(--muted);margin-top:3px}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{width:32px;height:32px;border-radius:999px;border:0;background:#F2F0EB;font-weight:700}
+.rm{background:none;border:0;color:var(--accent);font:700 11px "Space Mono",monospace;margin-top:4px}
+.sum{margin-top:6px;font-size:15px}
+.sum div{display:flex;justify-content:space-between;margin:5px 0}
+.sum .tot{font-style:italic;font-weight:900;font-size:22px;margin-top:10px}
+.bar{height:6px;border-radius:999px;background:#E2DED4;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.hint{font-size:11px;color:var(--muted);margin-top:6px}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.err{color:var(--accent);font-size:13px;min-height:18px;margin-top:10px}
+.empty{text-align:center;color:var(--muted);padding:40px 0}
+.ticket{background:#fff;border-radius:24px;padding:26px;text-align:center;margin-top:40px;box-shadow:0 14px 28px rgba(40,30,20,.12)}
+.ticket .big{font-style:italic;font-weight:900;font-size:40px;margin:8px 0}
+.proto{font-size:12px;color:var(--muted);line-height:1.5;margin-top:16px}
+</style>
+</head>
+<body>
+<div id="flash"></div>
+<input type="file" id="fileIn" accept="image/*" capture="user" hidden>
+<div class="wrap">
+
+<!-- HOME -->
+<section class="screen active" id="home">
+  <div class="top">
+    <span style="width:44px"></span>
+    <div class="pill"><i></i>RETROBOOTH</div>
+    <button class="ib" data-go="bag" aria-label="Print bag"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><b class="bagN" hidden>0</b></button>
+  </div>
+  <div class="hero" id="hero" aria-hidden="true"><div class="heroArt" id="heroArt">
+    <div class="pol" style="left:10px;top:34px;width:104px;padding:7px 7px 22px;transform:rotate(-10deg)"><div style="height:90px;background:#F0A04B;display:flex;align-items:flex-end;justify-content:center;overflow:hidden"><svg width="72" height="72" viewBox="0 0 80 80"><circle cx="40" cy="34" r="13" fill="#B8641F"/><path d="M13 80c2-18 13-28 27-28s25 10 27 28z" fill="#B8641F"/></svg></div></div>
+    <div class="strip" style="position:absolute;right:16px;top:128px;width:48px;height:144px;padding:2.5px 2.5px 0;gap:1.5px;transform:rotate(9deg);box-shadow:0 10px 18px rgba(40,30,20,.16)"><div style="background:#4A4A50"></div><div style="background:#6B6B72"></div><div style="background:#3C3C42"></div><div style="background:#5A5A61"></div></div>
+    <div style="position:absolute;left:50%;margin-left:-109px;top:80px;width:218px;height:146px;transform:rotate(-4deg)">
+      <div style="position:absolute;left:26px;top:-15px;width:54px;height:24px;border-radius:7px;background:repeating-linear-gradient(90deg,#EFECE6 0 4px,#CFC9BF 4px 6px)"></div>
+      <div style="position:absolute;right:24px;top:-17px;width:42px;height:42px;border-radius:999px;background:var(--accent);box-shadow:inset 0 -4px 0 rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 2v12M2 8h12" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></div>
+      <div style="position:absolute;inset:0;border-radius:26px;background:#C98A55;box-shadow:inset 0 -7px 0 rgba(0,0,0,.14),0 20px 30px rgba(70,40,15,.24);overflow:hidden"><div style="position:absolute;left:0;right:0;top:0;height:50px;background:#EEE8DD"></div><div style="position:absolute;right:22px;top:14px;width:32px;height:20px;border-radius:5px;background:#1E1E22"></div></div>
+      <div style="position:absolute;left:61px;top:23px;width:96px;height:96px;border-radius:999px;background:#E6E1D8;box-shadow:0 6px 12px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center"><div style="width:70px;height:70px;border-radius:999px;background:#1B1B1F;display:flex;align-items:center;justify-content:center"><div style="width:34px;height:34px;border-radius:999px;background:#2D4256;position:relative"><div style="position:absolute;left:8px;top:7px;width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.7)"></div></div></div></div>
+    </div>
+  </div></div>
+  <h1 class="big" style="margin-top:6px">Snap it.<br>Hold it.</h1>
+  <p class="sub" style="margin-top:12px">Click photos right in your browser. We print them and deliver to your door.</p>
+  <div class="tiles">
+    <button class="tile on" data-mode="strip" aria-pressed="true">
+      <div class="strip" style="width:18px;height:54px;padding:1px 1px 0;gap:.5px;box-shadow:0 2px 5px rgba(0,0,0,.16);transform:rotate(-5deg)"><div style="background:#4A4A50"></div><div style="background:#6B6B72"></div><div style="background:#3C3C42"></div><div style="background:#5A5A61"></div></div>
+      <strong>Photo strip</strong><span class="mono">4 POSES · FROM ₹49</span>
+    </button>
+    <button class="tile" data-mode="polaroid" aria-pressed="false">
+      <div style="width:36px;height:44px;padding:3px 3px 0;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.16);transform:rotate(6deg)"><div style="width:100%;aspect-ratio:1/1;background:#F0A04B"></div></div>
+      <strong>Polaroid</strong><span class="mono">1 SHOT · FROM ₹29</span>
+    </button>
+  </div>
+  <div class="push"></div>
+  <button class="cta" id="startBtn"><i></i><span id="startLabel">Start your strip</span></button>
+  <p class="foot mono">NO DOWNLOADS · ONLY PRINTS · 3–5 DAY DELIVERY</p>
+</section>
+
+<!-- CAMERA -->
+<section class="screen" id="camera">
+  <div class="top">
+    <button class="ib" data-go="home" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="pill"><i></i><span id="camPill">PHOTO STRIP</span></div>
+    <button class="ib" id="flipBtn" aria-label="Flip camera"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a8 8 0 0 1 14-3l2 2"/><path d="M20 4v4h-4"/><path d="M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M4 20v-4h4"/></svg></button>
+  </div>
+  <div class="vf strip-vf" id="vf">
+    <video id="video" playsinline muted autoplay hidden></video>
+    <div class="nocam" id="nocam" hidden>Live viewfinder isn't available here.<br>Tap the red button to open your camera.</div>
+    <div class="grid3"></div>
+    <div class="vstat mono"><span id="vstatL">● POSE 1 OF 4</span><span id="vstatR">B&amp;W · 4:3</span></div>
+    <div class="count" id="count"></div>
+  </div>
+  <div class="prog">
+    <div id="progVis"></div>
+    <div>
+      <span class="mono" style="font-size:11px;color:var(--muted)" id="sizeTag">ACTUAL SIZE · 2 × 6 IN</span>
+      <h2 id="poseH">Pose 1 of 4</h2>
+      <p class="sub" style="font-size:15px" id="poseP">Tap once, we take all 4. Change it up each time!</p>
+    </div>
+  </div>
+  <div class="push"></div>
+  <div class="ctrl">
+    <button class="ib small" id="undoBtn" aria-label="Retake last photo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+    <button class="shutter" id="shutter" aria-label="Take photo"><svg width="26" height="26" viewBox="0 0 16 16"><path d="M8 2v12M2 8h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+    <button class="ib small fbtn" id="filterBtn" aria-label="Change filter">B&amp;W</button>
+  </div>
+  <p class="foot mono" id="camFoot">TAP ONCE · WE TAKE ALL 4 · 3 SEC APART</p>
+</section>
+
+<!-- PREVIEW -->
+<section class="screen" id="preview">
+  <div class="top">
+    <button class="ib" id="retakeBtn" aria-label="Retake"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="pill"><i></i>DEVELOPING</div>
+    <button class="ib" data-go="bag" aria-label="Print bag"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><b class="bagN" hidden>0</b></button>
+  </div>
+  <div class="stage">
+    <figure id="figBig"><img id="outBig" alt="Your print preview"><figcaption class="mono" id="capBig"></figcaption></figure>
+    <figure id="figMini"><img id="outMini" alt="Phone-case mini preview"><figcaption class="mono" id="capMini"></figcaption></figure>
+  </div>
+  <div class="chips" id="chips">
+    <button class="chip" data-f="bw">B&amp;W</button><button class="chip" data-f="sepia">SEPIA</button><button class="chip" data-f="warm">FILM</button><button class="chip" data-f="none">COLOR</button>
+  </div>
+  <label class="lb" for="cap">CAPTION (PRINTED ON IT)</label>
+  <input class="field" id="cap" maxlength="26" placeholder="e.g. goa '26 ✦ us">
+  <label class="lb">SIZE</label>
+  <div class="sizes" id="sizes"></div>
+  <button class="cta" id="addBtn" style="margin-top:18px"><i></i><span id="addLabel">Add to bag</span></button>
+  <p class="foot mono">PREVIEW IS WATERMARKED · YOUR PRINT ISN'T</p>
+</section>
+
+<!-- BAG -->
+<section class="screen" id="bag">
+  <div class="top">
+    <button class="ib" data-go="home" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="pill"><i></i>PRINT BAG</div>
+    <span style="width:44px"></span>
+  </div>
+  <h2 class="t">Your prints</h2>
+  <div id="items"></div>
+  <div id="bagBody">
+    <div class="sum" id="sum"></div>
+    <button class="cta ghost" data-go="home" style="margin-top:14px;height:52px;font-size:16px">+ Take another</button>
+    <form id="checkout" novalidate>
+      <h2 class="t" style="font-size:28px">Deliver to</h2>
+      <label class="lb" for="nm">FULL NAME</label><input class="field" id="nm" autocomplete="name">
+      <label class="lb" for="ph">PHONE</label><input class="field" id="ph" inputmode="numeric" maxlength="10" placeholder="10-digit mobile" autocomplete="tel">
+      <label class="lb" for="addr">ADDRESS</label><textarea class="field" id="addr" rows="2" autocomplete="street-address"></textarea>
+      <div class="row2"><div><label class="lb" for="pin">PINCODE</label><input class="field" id="pin" inputmode="numeric" maxlength="6"></div><div><label class="lb" for="city">CITY</label><input class="field" id="city" autocomplete="address-level2"></div></div>
+      <div class="err" id="err"></div>
+      <button class="cta" type="submit" id="payBtn"><i></i><span id="payLabel">Pay with UPI</span></button>
+    </form>
+  </div>
+</section>
+
+<!-- DONE -->
+<section class="screen" id="done">
+  <div class="ticket">
+    <div class="mono" style="font-size:12px;color:var(--muted)">ORDER PLACED</div>
+    <div class="big" id="oid"></div>
+    <p class="sub" style="margin:0 auto" id="osum"></p>
+    <button class="cta" data-go="home" style="margin-top:22px"><i></i>Back to the booth</button>
+    <p class="proto">Prototype: no payment was taken and nothing ships. The real version opens PhonePe UPI here and sends print-ready files (2×6 in @ 300 DPI) to the lab.</p>
+  </div>
+</section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const PRICES={strip:{regular:79,mini:49,both:99},polaroid:{regular:39,mini:29,both:59}};
+const SIZES={strip:{regular:'2 × 6 IN',mini:'1 × 3 IN'},polaroid:{regular:'3.5 × 4.25 IN',mini:'2 × 2.4 IN'}};
+const FREE_OVER=399,SHIP=49;
+const FILTERS=['bw','sepia','warm','none'],FNAME={bw:'B&W',sepia:'SEPIA',warm:'FILM',none:'COLOR'};
+const CSSF={bw:'grayscale(1) contrast(1.25)',sepia:'sepia(.9)',warm:'sepia(.25) saturate(1.1) brightness(1.05)',none:'none'};
+const S={mode:'strip',shots:[],filter:'bw',caption:'',size:'both',bag:[],stream:null,facing:'user',busy:false,composed:null};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const need=()=>S.mode==='strip'?4:1;
+// strip photo frames are 4:3 (540x405 @300dpi); polaroid photo is square
+const shotDims=()=>S.mode==='strip'?[1080,810]:[960,960];
+
+function show(id){
+  if(id!=='camera')stopCam();
+  if(id==='bag')renderBag();
+  $$('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
+  scrollTo(0,0);
+  if(id==='home')requestAnimationFrame(fitHero);
+}
+$$('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go)));
+function flash(){const f=$('#flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
+function updateBagCount(){const n=S.bag.reduce((a,b)=>a+b.qty,0);$$('.bagN').forEach(b=>{b.textContent=n;b.hidden=!n;});}
+
+/* HOME: scale the illustration to fit the space so the CTA stays on screen */
+function fitHero(){const h=$('#hero'),s=Math.min(1,h.clientHeight/290,h.clientWidth/350);$('#heroArt').style.setProperty('--s',s.toFixed(3));}
+addEventListener('resize',fitHero);addEventListener('orientationchange',fitHero);fitHero();
+/* HOME */
+$$('.tile').forEach(t=>t.addEventListener('click',()=>{
+  S.mode=t.dataset.mode;
+  $$('.tile').forEach(x=>{const on=x===t;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);});
+  $('#startLabel').textContent=S.mode==='strip'?'Start your strip':'Take your Polaroid';
+}));
+$('#startBtn').addEventListener('click',()=>{S.shots=[];S.caption='';S.filter=S.mode==='strip'?'bw':'warm';S.size='regular';openCamera();});
+
+/* CAMERA */
+async function openCamera(){
+  show('camera');S.busy=false;
+  const strip=S.mode==='strip';
+  $('#vf').className='vf '+(strip?'strip-vf':'pol-vf');
+  $('#camPill').textContent=strip?'PHOTO STRIP':'POLAROID';
+  $('#sizeTag').textContent='ACTUAL SIZE · '+SIZES[S.mode].regular;
+  $('#camFoot').textContent=strip?'TAP ONCE · WE TAKE ALL 4 · 3 SEC APART':'ONE SHOT · MAKE IT COUNT';
+  renderProgress();await startStream();
+}
+async function startStream(){
+  stopCam();const v=$('#video');
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw 0;
+    const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:S.facing,width:{ideal:1280}},audio:false});
+    S.stream=s;v.srcObject=s;await v.play();v.hidden=false;$('#nocam').hidden=true;
+    v.classList.toggle('mirror',S.facing==='user');
+  }catch(e){v.hidden=true;$('#nocam').hidden=false;}
+  applyLiveFilter();
+}
+function stopCam(){if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}}
+function applyLiveFilter(){$('#video').style.filter=CSSF[S.filter];$('#filterBtn').textContent=FNAME[S.filter];$('#vstatR').textContent=FNAME[S.filter]+' · '+(S.mode==='strip'?'4:3':'1:1');}
+$('#filterBtn').addEventListener('click',()=>{S.filter=FILTERS[(FILTERS.indexOf(S.filter)+1)%4];applyLiveFilter();renderProgress();});
+$('#flipBtn').addEventListener('click',()=>{S.facing=S.facing==='user'?'environment':'user';startStream();});
+$('#undoBtn').addEventListener('click',()=>{if(S.busy)return;S.shots.pop();renderProgress();});
+
+function renderProgress(){
+  const box=$('#progVis'),n=S.shots.length,N=need();
+  if(S.mode==='strip'){
+    box.className='strip pstrip';box.innerHTML='';
+    for(let i=0;i<4;i++){const d=document.createElement('div');if(S.shots[i])d.style.backgroundImage=`url(${thumb(S.shots[i])})`;else if(i===n)d.className='cur';box.appendChild(d);}
+  }else{
+    box.className='ppol';box.innerHTML='<div></div>';
+    if(S.shots[0])box.firstChild.style.backgroundImage=`url(${thumb(S.shots[0])})`;
+  }
+  const k=Math.min(n+1,N);
+  $('#vstatL').textContent=N>1?`● POSE ${k} OF 4`:'● READY';
+  $('#poseH').textContent=N>1?`Pose ${k} of 4`:'Say cheese';
+  $('#poseP').textContent=N>1?(n?'Nice! Next pose, change it up.':'Tap once, we take all 4. Silly, serious, squad.'):'One shot, one Polaroid. Make it count.';
+}
+function thumb(c){if(!c._t||c._tf!==S.filter){const t=document.createElement('canvas');t.width=160;t.height=Math.round(160*c.height/c.width);t.getContext('2d').drawImage(filterCanvas(c,S.filter),0,0,t.width,t.height);c._t=t.toDataURL('image/jpeg',.7);c._tf=S.filter;}return c._t;}
+
+$('#shutter').addEventListener('click',async()=>{
+  if(S.busy)return;
+  if(!S.stream){$('#fileIn').click();return;}
+  S.busy=true;$('#shutter').disabled=true;
+  const v=$('#video'),[w,h]=shotDims();
+  while(S.shots.length<need()){
+    for(let i=3;i>0;i--){$('#count').textContent=i;await sleep(800);}
+    $('#count').textContent='';flash();
+    S.shots.push(cropTo(v,v.videoWidth,v.videoHeight,w,h,S.facing==='user'));
+    renderProgress();
+    if(S.shots.length<need())await sleep(700);
+  }
+  S.busy=false;$('#shutter').disabled=false;
+  await sleep(400);toPreview();
+});
+$('#fileIn').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+  const img=await loadImg(f),[w,h]=shotDims();
+  S.shots.push(cropTo(img,img.naturalWidth,img.naturalHeight,w,h,false));
+  flash();renderProgress();
+  if(S.shots.length>=need()){await sleep(400);toPreview();}
+});
+
+/* IMAGE HELPERS */
+function loadImg(file){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file);});}
+function mk(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
+function cropTo(src,sw,sh,w,h,mirror){
+  const c=mk(w,h),x=c.getContext('2d'),r=w/h;let cw=sw,ch=sw/r;if(ch>sh){ch=sh;cw=sh*r;}
+  if(mirror){x.translate(w,0);x.scale(-1,1);}
+  x.drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,w,h);return c;
+}
+function filterCanvas(src,f){
+  const w=src.width,h=src.height,c=mk(w,h),x=c.getContext('2d');x.drawImage(src,0,0);
+  if(f==='none')return c;
+  const d=x.getImageData(0,0,w,h),p=d.data;
+  for(let i=0;i<p.length;i+=4){
+    let r=p[i],g=p[i+1],b=p[i+2];
+    if(f==='bw'){let y=.3*r+.59*g+.11*b;y=(y-128)*1.3+128;r=g=b=y;}
+    else if(f==='sepia'){const tr=.393*r+.769*g+.189*b,tg=.349*r+.686*g+.168*b,tb=.272*r+.534*g+.131*b;r=tr*.94;g=tg*.9;b=tb*.82;}
+    else{r=(r*1.06+8)*.88+22;g=(g+3)*.88+18;b=b*.88*.88+24;}
+    const n=(Math.random()-.5)*20;p[i]=r+n;p[i+1]=g+n;p[i+2]=b+n;
+  }
+  x.putImageData(d,0,0);
+  const gr=x.createRadialGradient(w/2,h/2,Math.min(w,h)*.35,w/2,h/2,Math.max(w,h)*.78);
+  gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.32)');x.fillStyle=gr;x.fillRect(0,0,w,h);
+  return c;
+}
+function paper(x,W,H){x.fillStyle='#FBFAF6';x.fillRect(0,0,W,H);for(let i=0;i<1800;i++){x.fillStyle=`rgba(60,40,20,${Math.random()*.05})`;x.fillRect(Math.random()*W,Math.random()*H,2,2);}}
+
+/* Print-accurate composition at 300 DPI.
+   Strip: 600x1800 (2x6 in) — 30px border, four 540x405 frames, 20px gaps, 90px footer.
+   Polaroid: 1050x1275 (3.5x4.25 in) — 45px border, 960x960 photo, 270px caption area. */
+async function compose(watermark){
+  try{await document.fonts.load('italic 900 40px Archivo');}catch(e){}
+  const f=S.filter,cap=S.caption.trim();
+  const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}).toUpperCase();
+  let c,x,W,H;
+  if(S.mode==='strip'){
+    W=600;H=1800;c=mk(W,H);x=c.getContext('2d');paper(x,W,H);
+    S.shots.forEach((s,i)=>x.drawImage(filterCanvas(s,f),30,30+i*(405+20),540,405));
+    x.textAlign='center';x.fillStyle='#1A1A1A';x.font='italic 900 30px Archivo';
+    x.fillText((cap||'RETROBOOTH').toUpperCase(),W/2,30+4*405+3*20+50);
+    x.font='16px "Space Mono", monospace';x.fillStyle='#6A665E';x.fillText(date,W/2,H-12);
+  }else{
+    W=1050;H=1275;c=mk(W,H);x=c.getContext('2d');paper(x,W,H);
+    x.drawImage(filterCanvas(S.shots[0],f),45,45,960,960);
+    x.textAlign='center';x.fillStyle='#1A1A1A';x.font='italic 900 64px Archivo';
+    x.fillText(cap||date,W/2,45+960+140);
+    if(cap){x.font='26px "Space Mono", monospace';x.fillStyle='#6A665E';x.fillText(date,W/2,45+960+200);}
+  }
+  if(watermark){
+    x.save();x.translate(W/2,H/2);x.rotate(-Math.PI/7);x.textAlign='center';
+    x.font=`italic 900 ${Math.round(W/9)}px Archivo`;x.fillStyle='rgba(255,255,255,.4)';
+    const step=Math.round(W/2.2);let row=0;
+    for(let yy=-H;yy<H;yy+=Math.round(W/3.3),row++)for(let xx=-W*1.2;xx<W*1.2;xx+=step*1.6)x.fillText('PREVIEW',xx+(row%2?step*.8:0),yy);
+    x.restore();
+  }
+  return c;
+}
+
+/* PREVIEW */
+function toPreview(){stopCam();$('#cap').value=S.caption;show('preview');renderSizes();render(true);}
+async function render(animate){
+  const c=await compose(true),url=c.toDataURL('image/jpeg',.85);S.composed=url;
+  const strip=S.mode==='strip',big=$('#outBig'),mini=$('#outMini');
+  // true relative scale: mini is exactly half (strip) / ~0.57 (polaroid) of regular
+  if(strip){big.style.height='330px';big.style.width='110px';mini.style.height='165px';mini.style.width='55px';}
+  else{big.style.width='200px';big.style.height='243px';mini.style.width='114px';mini.style.height='139px';}
+  big.src=url;mini.src=url;
+  $('#figBig').hidden=S.size==='mini';$('#figMini').hidden=S.size==='regular';
+  $('#capBig').textContent=SIZES[S.mode].regular;$('#capMini').textContent=SIZES[S.mode].mini+' · PHONE CASE';
+  if(animate)[big,mini].forEach(i=>{i.classList.remove('dev');void i.offsetWidth;i.classList.add('dev');});
+  $$('.chip').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===S.filter));
+}
+function renderSizes(){
+  const P=PRICES[S.mode],Z=SIZES[S.mode];
+  const opts=[['regular','Regular',Z.regular],['mini','Phone mini',Z.mini],['both','Both','BIG + MINI']];
+  $('#sizes').innerHTML=opts.map(([k,t,m])=>`<button class="size${S.size===k?' on':''}" data-s="${k}" aria-pressed="${S.size===k}">${k==='both'?'<span class="badge">SAVE ₹'+(P.regular+P.mini-P.both)+'</span>':''}<strong>${t}</strong><span class="mono">${m}</span><em>₹${P[k]}</em></button>`).join('');
+  $$('.size').forEach(b=>b.addEventListener('click',()=>{S.size=b.dataset.s;renderSizes();$('#figBig').hidden=S.size==='mini';$('#figMini').hidden=S.size==='regular';}));
+  $('#addLabel').textContent='Add to bag · ₹'+P[S.size];
+}
+$$('.chip').forEach(ch=>ch.addEventListener('click',()=>{S.filter=ch.dataset.f;render(false);}));
+let capT;$('#cap').addEventListener('input',e=>{S.caption=e.target.value;clearTimeout(capT);capT=setTimeout(()=>render(false),250);});
+$('#retakeBtn').addEventListener('click',()=>{S.shots=[];openCamera();});
+$('#addBtn').addEventListener('click',()=>{
+  S.bag.push({mode:S.mode,size:S.size,img:S.composed,caption:S.caption.trim(),filter:S.filter,qty:1,price:PRICES[S.mode][S.size]});
+  updateBagCount();show('bag');
+});
+
+/* BAG */
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function totals(){const sub=S.bag.reduce((a,b)=>a+b.price*b.qty,0);const ship=!sub||sub>=FREE_OVER?0:SHIP;return{sub,ship,tot:sub+ship};}
+function renderBag(){
+  const box=$('#items');box.innerHTML='';
+  if(!S.bag.length){box.innerHTML='<div class="empty">Nothing here yet.<br>Step into the booth!</div>';$('#bagBody').hidden=true;return;}
+  $('#bagBody').hidden=false;
+  S.bag.forEach((it,i)=>{
+    const sizeTxt=it.size==='both'?'BIG + PHONE MINI':it.size==='mini'?'PHONE MINI · '+SIZES[it.mode].mini:SIZES[it.mode].regular;
+    const el=document.createElement('div');el.className='item';
+    el.innerHTML=`<img src="${it.img}" alt=""><div class="m">${it.mode==='strip'?'Photo strip':'Polaroid'}<small>${sizeTxt} · ${FNAME[it.filter]}${it.caption?' · “'+esc(it.caption)+'”':''}</small><small>₹${it.price} EACH</small><button class="rm">REMOVE</button></div><div class="qty"><button aria-label="Less">−</button><span>${it.qty}</span><button aria-label="More">+</button></div>`;
+    const [mi,pl]=el.querySelectorAll('.qty button');
+    mi.onclick=()=>{it.qty=Math.max(1,it.qty-1);updateBagCount();renderBag();};
+    pl.onclick=()=>{it.qty=Math.min(20,it.qty+1);updateBagCount();renderBag();};
+    el.querySelector('.rm').onclick=()=>{S.bag.splice(i,1);updateBagCount();renderBag();};
+    box.appendChild(el);
+  });
+  const t=totals(),pct=Math.min(100,Math.round(t.sub/FREE_OVER*100));
+  $('#sum').innerHTML=`<div><span>Prints</span><span>₹${t.sub}</span></div><div><span>Delivery</span><span>${t.ship?'₹'+t.ship:'Free'}</span></div>${t.ship?`<div class="bar"><i style="width:${pct}%"></i></div><p class="hint mono">ADD ₹${FREE_OVER-t.sub} MORE FOR FREE DELIVERY</p>`:''}<div class="tot"><span>Total</span><span>₹${t.tot}</span></div>`;
+  $('#payLabel').textContent='Pay ₹'+t.tot+' with UPI';
+}
+$$('#ph,#pin').forEach(i=>i.addEventListener('input',()=>{i.value=i.value.replace(/\D/g,'');}));
+$('#checkout').addEventListener('submit',e=>{
+  e.preventDefault();
+  const nm=$('#nm').value.trim(),ph=$('#ph').value.trim(),ad=$('#addr').value.trim(),pin=$('#pin').value.trim(),city=$('#city').value.trim();
+  let m='';
+  if(!nm)m='Add your name.';else if(!/^[6-9]\d{9}$/.test(ph))m='Enter a valid 10-digit mobile number.';
+  else if(ad.length<8)m='Add your full address.';else if(!/^[1-9]\d{5}$/.test(pin))m='Enter a valid 6-digit pincode.';else if(!city)m='Add your city.';
+  $('#err').textContent=m;if(m)return;
+  const t=totals(),n=S.bag.reduce((a,b)=>a+b.qty,0);
+  $('#oid').textContent='#RB'+Math.floor(10000+Math.random()*89999);
+  $('#osum').innerHTML=`${n} print${n>1?'s':''} · ₹${t.tot}<br>Shipping to ${esc(nm)}, ${esc(city)} ${esc(pin)}<br>Arrives in 3–5 days`;
+  S.bag=[];updateBagCount();show('done');
+});
+document.addEventListener('contextmenu',e=>{if(e.target.closest('.stage,.item'))e.preventDefault();});
+</script>
+</body>
+</html>
