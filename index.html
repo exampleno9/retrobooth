@@ -537,19 +537,14 @@ function renderSizes(){
   $('#addLabel').textContent='Order print · ₹'+P[S.size];
 }
 
-/* DOWNLOAD: free, full quality (300 DPI print file). Uses the share sheet on phones so it can be saved to Photos. */
+/* DOWNLOAD: free, full-quality PNG (300 DPI print file), saved straight to the device's downloads. */
 $('#dlBtn').addEventListener('click',async()=>{
   const b=$('#dlBtn');b.disabled=true;
   try{
     const c=await compose(false);
     const blob=await new Promise(r=>c.toBlob(r,'image/png'));
     const name='retrobooth-'+(S.mode==='strip'?'strip':'polaroid')+'.png';
-    const file=new File([blob],name,{type:'image/png'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){
-      try{await navigator.share({files:[file]});}catch(e){}
-    }else{
-      const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
-    }
+    const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),10000);
   }finally{b.disabled=false;}
 });
 $$('.chip').forEach(ch=>ch.addEventListener('click',()=>{S.filter=ch.dataset.f;render(false);}));
