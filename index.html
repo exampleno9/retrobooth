@@ -32,6 +32,33 @@ h1.big{font-style:italic;font-weight:900;font-size:clamp(42px,7svh,52px);line-he
 .cta:active{transform:translateY(2px)}
 .cta:disabled{opacity:.5}
 .ghost{background:#fff;color:#111;box-shadow:0 1px 0 var(--line)}
+/* rating chip + reviews drawer */
+.rate{display:flex;align-items:center;gap:6px;height:44px;padding:0 14px;border:0;border-radius:999px;background:#fff;box-shadow:0 1px 0 var(--line),0 4px 10px rgba(40,30,20,.06);font-weight:700;font-size:15px}
+.rate small{font:400 10.5px "Space Mono",monospace;color:var(--muted)}
+.scrim{position:fixed;inset:0;background:rgba(17,17,17,.45);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:430px;max-height:86dvh;background:#F2F0EB;border-radius:28px 28px 0 0;z-index:41;transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+.sheet.open{transform:none}
+.sheet .grab{width:40px;height:5px;border-radius:999px;background:#CFCBC2;margin:10px auto 0}
+.sheet .hd{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 4px}
+.sheet .bd{overflow-y:auto;padding:4px 20px 28px;overscroll-behavior:contain}
+.sample{background:#FFF3D6;color:#6B4A00;border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.45;margin:6px 0 14px}
+.score{display:flex;gap:18px;align-items:center;background:#fff;border-radius:20px;padding:16px;box-shadow:0 1px 0 var(--line)}
+.score .n{font-style:italic;font-weight:900;font-size:48px;line-height:1}
+.stars{color:#E8A317;letter-spacing:1px;font-size:14px}
+.dist{flex:1;display:flex;flex-direction:column;gap:5px}
+.dist div{display:flex;align-items:center;gap:8px;font:11px "Space Mono",monospace;color:var(--muted)}
+.dist i{flex:1;height:6px;border-radius:999px;background:#ECE9E2;overflow:hidden;display:block}
+.dist i b{display:block;height:100%;background:#111;border-radius:999px}
+.loved{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.loved span{background:#fff;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:500;box-shadow:0 1px 0 var(--line)}
+.rv{background:#fff;border-radius:18px;padding:14px;margin-top:10px;box-shadow:0 1px 0 var(--line)}
+.rv .who{display:flex;align-items:center;gap:10px}
+.rv .av{width:36px;height:36px;border-radius:999px;display:grid;place-items:center;font-style:italic;font-weight:900;color:#fff}
+.rv .who b{display:block;font-size:14.5px}
+.rv .who small{font:10.5px "Space Mono",monospace;color:var(--muted)}
+.rv p{font-size:15px;line-height:1.45;margin-top:10px}
+.rv .tag{display:inline-block;margin-top:10px;font:700 10px "Space Mono",monospace;background:#F2F0EB;border-radius:999px;padding:4px 8px;color:#4A4740}
 /* hero */
 .hero{position:relative;height:clamp(140px,calc(100dvh - 515px),290px);margin-top:8px;flex:none}
 .heroArt{position:absolute;left:50%;top:0;width:350px;height:290px;transform-origin:top center;transform:translateX(-50%) scale(var(--s,1))}
@@ -119,9 +146,11 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
 <!-- HOME -->
 <section class="screen active" id="home">
   <div class="top">
-    <span style="width:44px"></span>
     <div class="pill"><i></i>RETROBOOTH</div>
+    <div style="display:flex;gap:8px">
+    <button class="rate" id="rateBtn" aria-label="Rating 4.8 out of 5, sample reviews. Open reviews"><span class="stars" aria-hidden="true">★</span>4.8<small>(SAMPLE)</small></button>
     <button class="ib" data-go="bag" aria-label="Print bag"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><b class="bagN" hidden>0</b></button>
+    </div>
   </div>
   <div class="hero" id="hero" aria-hidden="true"><div class="heroArt" id="heroArt">
     <div class="pol" style="left:10px;top:34px;width:104px;padding:7px 7px 22px;transform:rotate(-10deg)"><div style="height:90px;background:#F0A04B;display:flex;align-items:flex-end;justify-content:center;overflow:hidden"><svg width="72" height="72" viewBox="0 0 80 80"><circle cx="40" cy="34" r="13" fill="#B8641F"/><path d="M13 80c2-18 13-28 27-28s25 10 27 28z" fill="#B8641F"/></svg></div></div>
@@ -239,6 +268,21 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
 </section>
 </div>
 
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="rvTitle" aria-hidden="true">
+  <div class="grab"></div>
+  <div class="hd"><h2 id="rvTitle" style="font-style:italic;font-weight:900;font-size:26px">Reviews</h2>
+    <button class="ib" id="closeRv" aria-label="Close reviews"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="bd">
+    <p class="sample"><b>Sample reviews.</b> These are placeholders for the design. Real customer reviews will replace them before launch.</p>
+    <div class="score">
+      <div><div class="n">4.8</div><div class="stars" aria-hidden="true">★★★★★</div><div class="mono" style="font-size:10.5px;color:var(--muted);margin-top:4px">128 REVIEWS</div></div>
+      <div class="dist" id="dist"></div>
+    </div>
+    <div class="loved"><span>Print quality</span><span>Cute packaging</span><span>Easy to use</span><span>Fast delivery</span><span>Fun gift</span></div>
+    <div id="rvList"></div>
+  </div>
+</div>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const PRICES={strip:{regular:79,mini:49,both:119},polaroid:{regular:79,mini:49,both:119}};
@@ -473,6 +517,25 @@ $('#checkout').addEventListener('submit',e=>{
   $('#osum').innerHTML=`${n} print${n>1?'s':''} · ₹${t.tot}<br>Shipping to ${esc(nm)}, ${esc(city)} ${esc(pin)}<br>Arrives in 3–5 days`;
   S.bag=[];updateBagCount();show('done');
 });
+
+/* REVIEWS DRAWER (sample data, replace with real reviews before launch) */
+const DIST=[[5,86],[4,10],[3,2],[2,1],[1,1]];
+const REVIEWS=[
+ {n:'Sample · Riya',c:'Pune',r:5,d:'2 days ago',t:'The strip looks exactly like an old photobooth one. Stuck the mini on my phone case and everyone asks where I got it.',p:'PHOTO STRIP · BOTH',col:'#E8412C'},
+ {n:'Sample · Arjun',c:'Bengaluru',r:5,d:'1 week ago',t:'Super easy, just clicked 4 photos in the browser. Prints came in a cute envelope in 4 days.',p:'PHOTO STRIP · REGULAR',col:'#2B5BFF'},
+ {n:'Sample · Meera',c:'Delhi',r:4,d:'2 weeks ago',t:'Lovely Polaroid quality. Took a few tries to get the lighting right, but worth it.',p:'POLAROID · REGULAR',col:'#C98A55'},
+ {n:'Sample · Kabir',c:'Mumbai',r:5,d:'3 weeks ago',t:'Ordered 6 strips for a friend\'s birthday gift. Total hit.',p:'PHOTO STRIP · REGULAR',col:'#111111'}
+];
+function renderReviews(){
+  $('#dist').innerHTML=DIST.map(([k,v])=>`<div>${k}<i><b style="width:${v}%"></b></i></div>`).join('');
+  $('#rvList').innerHTML=REVIEWS.map(r=>`<article class="rv"><div class="who"><span class="av" style="background:${r.col}">${r.n.split('· ')[1][0]}</span><div><b>${r.n}</b><small>${r.c.toUpperCase()} · ${r.d.toUpperCase()}</small></div></div><div class="stars" style="margin-top:10px" aria-label="${r.r} out of 5">${'★'.repeat(r.r)}<span style="color:#D8D4CB">${'★'.repeat(5-r.r)}</span></div><p>${r.t}</p><span class="tag">${r.p}</span></article>`).join('');
+}
+function openRv(o){$('#scrim').classList.toggle('open',o);const sh=$('#sheet');sh.classList.toggle('open',o);sh.setAttribute('aria-hidden',!o);document.body.style.overflow=o?'hidden':'';if(o)$('#closeRv').focus();}
+renderReviews();
+$('#rateBtn').addEventListener('click',()=>openRv(true));
+$('#closeRv').addEventListener('click',()=>openRv(false));
+$('#scrim').addEventListener('click',()=>openRv(false));
+addEventListener('keydown',e=>{if(e.key==='Escape')openRv(false);});
 document.addEventListener('contextmenu',e=>{if(e.target.closest('.stage,.item'))e.preventDefault();});
 </script>
 </body>
