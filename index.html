@@ -263,13 +263,13 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
   <div class="chips" id="chips">
     <button class="chip" data-f="bw">B&amp;W</button><button class="chip" data-f="sepia">SEPIA</button><button class="chip" data-f="warm">FILM</button><button class="chip" data-f="none">COLOR</button>
   </div>
-  <label class="lb" for="cap">CAPTION (PRINTED ON IT)</label>
+  <label class="lb" for="cap">CAPTION (OPTIONAL, PRINTED ON IT)</label>
   <input class="field" id="cap" maxlength="26" placeholder="e.g. goa '26 ✦ us">
   <label class="lb">SIZE</label>
   <div class="sizes" id="sizes"></div>
   <div style="display:flex;gap:10px;margin-top:18px">
-    <button class="cta ghost" id="dlBtn" style="flex:1;font-size:17px" aria-label="Download your photo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download</button>
-    <button class="cta" id="addBtn" style="flex:1.7"><i></i><span id="addLabel">Order print</span></button>
+    <button class="cta ghost" id="dlBtn" style="flex:none;width:60px;padding:0" aria-label="Download photo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></button>
+    <button class="cta" id="addBtn" style="flex:1"><i></i><span id="addLabel">Order print</span></button>
   </div>
   <p class="foot mono">FREE DOWNLOAD · OR GET IT PRINTED</p>
 </section>
@@ -487,20 +487,17 @@ function paper(x,W,H){x.fillStyle='#FBFAF6';x.fillRect(0,0,W,H);for(let i=0;i<18
 async function compose(watermark){
   try{await document.fonts.load('italic 900 40px Archivo');}catch(e){}
   const f=S.filter,cap=S.caption.trim();
-  const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}).toUpperCase();
   let c,x,W,H;
   if(S.mode==='strip'){
     W=600;H=1800;c=mk(W,H);x=c.getContext('2d');paper(x,W,H);
     S.shots.forEach((s,i)=>x.drawImage(filterCanvas(s,f),30,30+i*(405+20),540,405));
-    x.textAlign='center';x.fillStyle='#1A1A1A';x.font='italic 900 30px Archivo';
-    x.fillText((cap||'RETROBOOTH').toUpperCase(),W/2,30+4*405+3*20+50);
-    x.font='16px "Space Mono", monospace';x.fillStyle='#6A665E';x.fillText(date,W/2,H-12);
+    if(cap){x.textAlign='center';x.fillStyle='#1A1A1A';x.font='italic 900 30px Archivo';
+      x.fillText(cap.toUpperCase(),W/2,30+4*405+3*20+56);}
   }else{
     W=1050;H=1275;c=mk(W,H);x=c.getContext('2d');paper(x,W,H);
     x.drawImage(filterCanvas(S.shots[0],f),45,45,960,960);
     x.textAlign='center';x.fillStyle='#1A1A1A';x.font='italic 900 64px Archivo';
-    x.fillText(cap||date,W/2,45+960+140);
-    if(cap){x.font='26px "Space Mono", monospace';x.fillStyle='#6A665E';x.fillText(date,W/2,45+960+200);}
+    if(cap)x.fillText(cap,W/2,45+960+150);
   }
   if(watermark){
     x.save();x.translate(W/2,H/2);x.rotate(-Math.PI/7);x.textAlign='center';
@@ -545,9 +542,9 @@ $('#dlBtn').addEventListener('click',async()=>{
   const b=$('#dlBtn');b.disabled=true;
   try{
     const c=await compose(false);
-    const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));
-    const name='retrobooth-'+(S.mode==='strip'?'strip':'polaroid')+'.jpg';
-    const file=new File([blob],name,{type:'image/jpeg'});
+    const blob=await new Promise(r=>c.toBlob(r,'image/png'));
+    const name='retrobooth-'+(S.mode==='strip'?'strip':'polaroid')+'.png';
+    const file=new File([blob],name,{type:'image/png'});
     if(navigator.canShare&&navigator.canShare({files:[file]})){
       try{await navigator.share({files:[file]});}catch(e){}
     }else{
