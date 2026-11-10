@@ -60,7 +60,7 @@ h1.big{font-style:italic;font-weight:900;font-size:clamp(38px,6.4dvh,46px);line-
 .rv p{font-size:15px;line-height:1.45;margin-top:10px}
 .rv .tag{display:inline-block;margin-top:10px;font:700 10px "Space Mono",monospace;background:#F2F0EB;border-radius:999px;padding:4px 8px;color:#4A4740}
 /* hero */
-.hero{position:relative;height:clamp(140px,calc(100dvh - 515px),290px);margin-top:8px;flex:none}
+.hero{position:relative;height:290px;margin-top:8px;flex:none}
 .heroArt{position:absolute;left:50%;top:0;width:350px;height:290px;transform-origin:top center;transform:translateX(-50%) scale(var(--s,1))}
 .pol{position:absolute;background:#fff;box-shadow:0 10px 20px rgba(40,30,20,.16);border-radius:3px}
 .strip{background:#fff;display:flex;flex-direction:column}
@@ -307,7 +307,18 @@ function flash(){const f=$('#flash');f.classList.remove('go');void f.offsetWidth
 function updateBagCount(){const n=S.bag.reduce((a,b)=>a+b.qty,0);$$('.bagN').forEach(b=>{b.textContent=n;b.hidden=!n;});}
 
 /* HOME: scale the illustration to fit the space so the CTA stays on screen */
-function fitHero(){const h=$('#hero'),s=Math.min(1,h.clientHeight/290,h.clientWidth/350);$('#heroArt').style.setProperty('--s',s.toFixed(3));}
+function fitHero(){
+  // measure everything else on the home screen, give the illustration whatever height is left (110-290px)
+  const home=$('#home');if(!home.classList.contains('active'))return;
+  const hero=$('#hero'),cs=getComputedStyle($('.wrap'));
+  let used=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom)+24;
+  [...home.children].forEach(el=>{if(el===hero||el.classList.contains('push'))return;const st=getComputedStyle(el);used+=el.getBoundingClientRect().height+parseFloat(st.marginTop)+parseFloat(st.marginBottom);});
+  const h=Math.max(110,Math.min(290,Math.floor(innerHeight-used-parseFloat(getComputedStyle(hero).marginTop))));
+  hero.style.height=h+'px';
+  $('#heroArt').style.setProperty('--s',Math.min(1,h/290,hero.clientWidth/350).toFixed(3));
+}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitHero);
+if(window.visualViewport)visualViewport.addEventListener('resize',fitHero);
 addEventListener('resize',fitHero);addEventListener('orientationchange',fitHero);fitHero();
 /* HOME */
 $$('.tile').forEach(t=>t.addEventListener('click',()=>{
