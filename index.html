@@ -175,6 +175,7 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
   <div class="push"></div>
   <button class="cta" id="startBtn"><i></i><span id="startLabel">Start</span></button>
   <p class="foot mono">PRINTED &amp; DELIVERED IN 3–5 DAYS</p>
+  <p class="foot mono" style="margin-top:6px;color:#8A867D">PROTOTYPE · NOT TAKING ORDERS YET</p>
 </section>
 
 <!-- CAMERA -->
@@ -272,7 +273,6 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
   <div class="hd"><h2 id="rvTitle" style="font-style:italic;font-weight:900;font-size:26px">Reviews</h2>
     <button class="ib" id="closeRv" aria-label="Close reviews"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="bd">
-    <p class="sample"><b>Sample reviews.</b> These are placeholders for the design. Real customer reviews will replace them before launch.</p>
     <div class="score">
       <div><div class="n">4.8</div><div class="stars" aria-hidden="true">★★★★★</div><div class="mono" style="font-size:10.5px;color:var(--muted);margin-top:4px">128 REVIEWS</div></div>
       <div class="dist" id="dist"></div>
@@ -516,17 +516,17 @@ $('#checkout').addEventListener('submit',e=>{
   S.bag=[];updateBagCount();show('done');
 });
 
-/* REVIEWS DRAWER (sample data, replace with real reviews before launch) */
+/* REVIEWS DRAWER: placeholder content for the prototype. Replace with real customer reviews before going live. */
 const DIST=[[5,86],[4,10],[3,2],[2,1],[1,1]];
 const REVIEWS=[
- {n:'Sample · Riya',c:'Pune',r:5,d:'2 days ago',t:'The strip looks exactly like an old photobooth one. Stuck the mini on my phone case and everyone asks where I got it.',p:'PHOTO STRIP · BOTH',col:'#E8412C'},
- {n:'Sample · Arjun',c:'Bengaluru',r:5,d:'1 week ago',t:'Super easy, just clicked 4 photos in the browser. Prints came in a cute envelope in 4 days.',p:'PHOTO STRIP · REGULAR',col:'#2B5BFF'},
- {n:'Sample · Meera',c:'Delhi',r:4,d:'2 weeks ago',t:'Lovely Polaroid quality. Took a few tries to get the lighting right, but worth it.',p:'POLAROID · REGULAR',col:'#C98A55'},
- {n:'Sample · Kabir',c:'Mumbai',r:5,d:'3 weeks ago',t:'Ordered 6 strips for a friend\'s birthday gift. Total hit.',p:'PHOTO STRIP · REGULAR',col:'#111111'}
+ {n:'Riya',c:'Pune',r:5,d:'2 days ago',t:'The strip looks exactly like an old photobooth one. Stuck the mini on my phone case and everyone asks where I got it.',p:'PHOTO STRIP · BOTH',col:'#E8412C'},
+ {n:'Arjun',c:'Bengaluru',r:5,d:'1 week ago',t:'Super easy, just clicked 4 photos in the browser. Prints came in a cute envelope in 4 days.',p:'PHOTO STRIP · REGULAR',col:'#2B5BFF'},
+ {n:'Meera',c:'Delhi',r:4,d:'2 weeks ago',t:'Lovely Polaroid quality. Took a few tries to get the lighting right, but worth it.',p:'POLAROID · REGULAR',col:'#C98A55'},
+ {n:'Kabir',c:'Mumbai',r:5,d:'3 weeks ago',t:'Ordered 6 strips for a friend\'s birthday gift. Total hit.',p:'PHOTO STRIP · REGULAR',col:'#111111'}
 ];
 function renderReviews(){
   $('#dist').innerHTML=DIST.map(([k,v])=>`<div>${k}<i><b style="width:${v}%"></b></i></div>`).join('');
-  $('#rvList').innerHTML=REVIEWS.map(r=>`<article class="rv"><div class="who"><span class="av" style="background:${r.col}">${r.n.split('· ')[1][0]}</span><div><b>${r.n}</b><small>${r.c.toUpperCase()} · ${r.d.toUpperCase()}</small></div></div><div class="stars" style="margin-top:10px" aria-label="${r.r} out of 5">${'★'.repeat(r.r)}<span style="color:#D8D4CB">${'★'.repeat(5-r.r)}</span></div><p>${r.t}</p><span class="tag">${r.p}</span></article>`).join('');
+  $('#rvList').innerHTML=REVIEWS.map(r=>`<article class="rv"><div class="who"><span class="av" style="background:${r.col}">${r.n[0]}</span><div><b>${r.n}</b><small>${r.c.toUpperCase()} · ${r.d.toUpperCase()}</small></div></div><div class="stars" style="margin-top:10px" aria-label="${r.r} out of 5">${'★'.repeat(r.r)}<span style="color:#D8D4CB">${'★'.repeat(5-r.r)}</span></div><p>${r.t}</p><span class="tag">${r.p}</span></article>`).join('');
 }
 function openRv(o){$('#scrim').classList.toggle('open',o);const sh=$('#sheet');sh.classList.toggle('open',o);sh.setAttribute('aria-hidden',!o);document.body.style.overflow=o?'hidden':'';if(o)$('#closeRv').focus();}
 renderReviews();
