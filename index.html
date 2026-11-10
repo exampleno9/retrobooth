@@ -174,7 +174,7 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
   </div>
   <div class="push"></div>
   <div class="ctrl">
-    <button class="ib small" id="undoBtn" aria-label="Retake last photo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+    <span class="small" aria-hidden="true"></span>
     <button class="shutter" id="shutter" aria-label="Take photo"><svg width="26" height="26" viewBox="0 0 16 16"><path d="M8 2v12M2 8h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></button>
     <button class="ib small fbtn" id="filterBtn" aria-label="Change filter">B&amp;W</button>
   </div>
@@ -309,7 +309,6 @@ function applyLiveFilter(){$('#video').style.filter=CSSF[S.filter];$('#filterBtn
 $('#filterBtn').addEventListener('click',()=>{S.filter=FILTERS[(FILTERS.indexOf(S.filter)+1)%4];applyLiveFilter();renderProgress();});
 $('#nocam').addEventListener('click',()=>startStream());
 $('#flipBtn').addEventListener('click',()=>{S.facing=S.facing==='user'?'environment':'user';startStream();});
-$('#undoBtn').addEventListener('click',()=>{if(S.busy)return;S.shots.pop();renderProgress();});
 
 function renderProgress(){
   const box=$('#progVis'),n=S.shots.length,N=need();
