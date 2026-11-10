@@ -101,8 +101,9 @@ h1.big{font-style:italic;font-weight:900;font-size:clamp(38px,6.4dvh,46px);line-
 .stage figure{display:flex;flex-direction:column;align-items:center;gap:8px}
 .stage img{display:block;box-shadow:0 14px 28px rgba(40,30,20,.22),0 2px 4px rgba(40,30,20,.12);-webkit-touch-callout:none;user-select:none;pointer-events:none}
 .stage figcaption{font-size:10.5px;color:var(--muted)}
-.dev{animation:dev 3s ease-out}
-@keyframes dev{0%{filter:brightness(.12) sepia(1) blur(3px);transform:translateY(-24px)}100%{filter:none}}
+.dev{animation:dev .5s cubic-bezier(.3,1.4,.5,1) both}
+#outMini.dev{animation-delay:.07s}
+@keyframes dev{0%{opacity:0;transform:translateY(-18px) scale(.9) rotate(-2deg)}55%{opacity:1;transform:translateY(4px) scale(1.03) rotate(1deg)}80%{transform:translateY(-2px) scale(.99) rotate(0)}100%{transform:none}}
 .chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
 .chip{border:0;background:#fff;box-shadow:0 1px 0 var(--line);border-radius:999px;height:36px;padding:0 14px;font:700 12px "Space Mono",monospace}
 .chip.on{background:#111;color:#fff}
