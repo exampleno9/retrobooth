@@ -70,7 +70,7 @@ h1.big{font-style:italic;font-weight:900;font-size:clamp(42px,7svh,52px);line-he
 #flash.go{animation:fl .45s ease-out}
 @keyframes fl{0%{opacity:.95}100%{opacity:0}}
 /* preview */
-.stage{display:flex;align-items:flex-end;justify-content:center;gap:22px;margin-top:18px;min-height:300px}
+.stage{display:flex;align-items:flex-end;justify-content:center;gap:22px;margin-top:18px;height:360px;flex:none}
 .stage figure{display:flex;flex-direction:column;align-items:center;gap:8px}
 .stage img{display:block;box-shadow:0 14px 28px rgba(40,30,20,.22),0 2px 4px rgba(40,30,20,.12);-webkit-touch-callout:none;user-select:none;pointer-events:none}
 .stage figcaption{font-size:10.5px;color:var(--muted)}
@@ -415,6 +415,8 @@ async function render(animate){
   const c=await compose(true),url=c.toDataURL('image/jpeg',.85);S.composed=url;
   const strip=S.mode==='strip',big=$('#outBig'),mini=$('#outMini');
   // true relative scale: mini is exactly half (strip) / ~0.57 (polaroid) of regular
+  // fixed stage height (tallest print + label) so switching sizes never moves the controls below
+  $('.stage').style.height=strip?'360px':'272px';
   if(strip){big.style.height='330px';big.style.width='110px';mini.style.height='165px';mini.style.width='55px';}
   else{big.style.width='200px';big.style.height='243px';mini.style.width='114px';mini.style.height='139px';}
   big.src=url;mini.src=url;
