@@ -23,7 +23,7 @@ button{cursor:pointer}
 .ib b{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:999px;background:var(--accent);color:#fff;font:700 11px/18px "Space Mono",monospace;padding:0 4px}
 .pill{display:flex;align-items:center;gap:8px;background:#111;color:#fff;border-radius:999px;padding:8px 14px 8px 12px;font-style:italic;font-weight:900;font-size:14px;letter-spacing:.04em}
 .pill i{width:9px;height:9px;border-radius:999px;background:var(--accent);display:block}
-h1.big{font-style:italic;font-weight:900;font-size:clamp(42px,7svh,52px);line-height:.95;letter-spacing:-.02em}
+h1.big{font-style:italic;font-weight:900;font-size:clamp(38px,6.4dvh,46px);line-height:.95;letter-spacing:-.02em}
 .sub{font-size:16px;line-height:1.45;color:var(--muted);max-width:310px}
 .foot{text-align:center;font-size:10.5px;color:var(--muted);margin-top:14px}
 .push{flex:1 1 auto;min-height:24px}
@@ -162,21 +162,21 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
       <div style="position:absolute;left:61px;top:23px;width:96px;height:96px;border-radius:999px;background:#E6E1D8;box-shadow:0 6px 12px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center"><div style="width:70px;height:70px;border-radius:999px;background:#1B1B1F;display:flex;align-items:center;justify-content:center"><div style="width:34px;height:34px;border-radius:999px;background:#2D4256;position:relative"><div style="position:absolute;left:8px;top:7px;width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.7)"></div></div></div></div>
     </div>
   </div></div>
-  <h1 class="big" style="margin-top:6px">Snap it.<br>Hold it.</h1>
-  <p class="sub" style="margin-top:12px">Click photos right in your browser. We print them and deliver to your door.</p>
+  <h1 class="big" style="margin-top:6px">Photobooth prints,<br>at home.</h1>
+  <p class="sub" style="margin-top:12px">Take photos on your phone. We print them and post them to you.</p>
   <div class="tiles">
     <button class="tile on" data-mode="strip" aria-pressed="true">
       <div class="strip" style="width:18px;height:54px;padding:1px 1px 0;gap:.5px;box-shadow:0 2px 5px rgba(0,0,0,.16);transform:rotate(-5deg)"><div style="background:#4A4A50"></div><div style="background:#6B6B72"></div><div style="background:#3C3C42"></div><div style="background:#5A5A61"></div></div>
-      <strong>Photo strip</strong><span class="mono">4 POSES · FROM ₹49</span>
+      <strong>Photo strip</strong><span class="mono">4 PHOTOS · ₹79</span>
     </button>
     <button class="tile" data-mode="polaroid" aria-pressed="false">
       <div style="width:36px;height:44px;padding:3px 3px 0;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.16);transform:rotate(6deg)"><div style="width:100%;aspect-ratio:1/1;background:#F0A04B"></div></div>
-      <strong>Polaroid</strong><span class="mono">1 SHOT · FROM ₹49</span>
+      <strong>Polaroid</strong><span class="mono">1 PHOTO · ₹79</span>
     </button>
   </div>
   <div class="push"></div>
-  <button class="cta" id="startBtn"><i></i><span id="startLabel">Start your strip</span></button>
-  <p class="foot mono">NO DOWNLOADS · ONLY PRINTS · 3–5 DAY DELIVERY</p>
+  <button class="cta" id="startBtn"><i></i><span id="startLabel">Take my photos</span></button>
+  <p class="foot mono">PRINTED &amp; DELIVERED IN 3–5 DAYS</p>
 </section>
 
 <!-- CAMERA -->
@@ -314,7 +314,7 @@ addEventListener('resize',fitHero);addEventListener('orientationchange',fitHero)
 $$('.tile').forEach(t=>t.addEventListener('click',()=>{
   S.mode=t.dataset.mode;
   $$('.tile').forEach(x=>{const on=x===t;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);});
-  $('#startLabel').textContent=S.mode==='strip'?'Start your strip':'Take your Polaroid';
+  $('#startLabel').textContent=S.mode==='strip'?'Take my photos':'Take my photo';
 }));
 $('#startBtn').addEventListener('click',()=>{S.shots=[];S.caption='';S.filter=S.mode==='strip'?'bw':'warm';S.size='regular';openCamera();});
 
