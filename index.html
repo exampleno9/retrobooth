@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RetroBooth — prototype</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23111'/%3E%3Ccircle cx='32' cy='32' r='11' fill='%23E8412C'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,700;1,800;1,900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -58,7 +59,7 @@ h1.big{font-style:italic;font-weight:900;font-size:clamp(38px,6.4dvh,46px);line-
 .rv .who b{display:block;font-size:14.5px}
 .rv .who small{font:10.5px "Space Mono",monospace;color:var(--muted)}
 .rv p{font-size:15px;line-height:1.45;margin-top:10px}
-.rv .tag{display:inline-block;margin-top:10px;font:700 10px "Space Mono",monospace;background:#F2F0EB;border-radius:999px;padding:4px 8px;color:#4A4740}
+.rv .tag{display:inline-block;margin-top:10px;font:700 10px "Space Mono",monospace;background:#F2F0EB;border-radius:999px;padding:4px 8px;color:var(--muted)}
 /* hero: stack of prints */
 .deck{position:absolute;inset:0}
 .card{position:absolute;left:50%;top:46%;background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 6px 12px rgba(0,0,0,.05),0 20px 40px rgba(0,0,0,.10);transition:translate .4s cubic-bezier(.2,.8,.2,1);animation:sway 6s ease-in-out infinite alternate}
@@ -86,7 +87,7 @@ h1.big{font-style:italic;font-weight:900;font-size:clamp(38px,6.4dvh,46px);line-
 .tile{text-align:left;border:0;border-radius:20px;padding:14px;background:#fff;box-shadow:0 1px 0 var(--line),0 6px 14px rgba(40,30,20,.06);display:flex;flex-direction:column;gap:6px;min-height:118px}
 .tile.on{box-shadow:0 0 0 2.5px #111,0 6px 14px rgba(40,30,20,.06)}
 .tile strong{font-style:italic;font-weight:900;font-size:19px;margin-top:auto}
-.tile span{font-size:11px;color:#4A4740}
+.tile span{font-size:11px;color:var(--muted)}
 /* camera */
 .vf{position:relative;width:100%;border-radius:24px;background:#1A1A1D;overflow:hidden;box-shadow:0 0 0 6px #fff,0 14px 28px rgba(40,30,20,.18);margin-top:16px}
 .vf.strip-vf{aspect-ratio:4/3}.vf.pol-vf{aspect-ratio:1/1}
@@ -129,7 +130,7 @@ label.lb{display:block;font:11px "Space Mono",monospace;letter-spacing:.05em;col
 .size{position:relative;border:0;border-radius:16px;background:#fff;box-shadow:0 1px 0 var(--line);padding:12px 10px;text-align:left;display:flex;flex-direction:column;gap:3px}
 .size.on{box-shadow:0 0 0 2.5px #111}
 .size strong{font-style:italic;font-weight:900;font-size:16px}
-.size span{font-size:10px;color:#4A4740}
+.size span{font-size:10px;color:var(--muted)}
 .size em{font-style:normal;font-weight:700;font-size:15px;margin-top:4px}
 .badge{position:absolute;top:-9px;right:8px;background:var(--accent);color:#fff;border-radius:999px;padding:2px 7px;font:700 9px "Space Mono",monospace}
 /* bag */
@@ -179,6 +180,54 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
 .item.out{transition:opacity .2s ease,transform .2s ease;opacity:0;transform:translateX(-30px)}
 .ticket{animation:fadeUp .4s cubic-bezier(.2,.8,.2,1) both}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ===== Design cleanup: tokens, 4-size type scale, 3 radii ===== */
+:root{--ink:#111;--muted:#55524B;--line:#E2DED4;--dot:#DEDAD0;--surface:#FFFFFF;--page:#F2F0EB;--sunken:#ECE9E2;--accent:#E8412C;--accent-text:#C8321F;
+  --t-display:44px;--t-heading:28px;--t-title:20px;--t-body:16px;--t-label:12px;--r-pill:999px;--r-card:20px;--r-print:6px}
+h1.big{font-size:clamp(36px,6dvh,var(--t-display))}
+.sub{font-family:"Archivo",system-ui,sans-serif;font-size:var(--t-body);line-height:1.45;color:var(--muted)}
+.foot,.hint,label.lb,.stage figcaption,.vstat,.rm,.tile .meta .mono,.size span,.item .m small,.rv .who small,.rv .tag,.badge,.chip,.fbtn,.dist div{font-size:var(--t-label)!important}
+.foot{color:var(--muted)}
+.pill{font-size:var(--t-body)}
+.rate{font-size:var(--t-body)}
+.cta{font-size:var(--t-title)}
+.tile strong{font-size:var(--t-title)}
+.tile .meta{display:flex;justify-content:space-between;align-items:baseline;width:100%}
+.tile .meta b{font-size:var(--t-body);font-weight:700;color:var(--ink)}
+.tile .meta .mono{color:var(--muted)}
+.ticon{box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 8px rgba(0,0,0,.08)}
+.ticon img{display:block;width:100%;height:100%;object-fit:cover}
+.ticon.strip>div{overflow:hidden}
+.size strong{font-size:var(--t-body);font-weight:900}
+.size em{font-size:var(--t-body)}
+.size span{color:var(--muted)}
+.size .badge{color:#fff}
+.badge{background:var(--accent-text);font-size:var(--t-label)!important;top:-11px;padding:2px 8px}
+.item .m{font-size:var(--t-body)}
+.item .m small{color:var(--muted)}
+.rm{color:var(--accent-text)}
+.sum{font-size:var(--t-body)}
+.sum .tot{font-size:var(--t-title)}
+h2.t{font-size:var(--t-heading)}
+.prog h2{font-size:var(--t-heading)}
+.score .n{font-size:var(--t-display)}
+.rv .who b,.rv p{font-size:var(--t-body)}
+.loved span{font:400 var(--t-label) "Space Mono",monospace;letter-spacing:.05em;text-transform:uppercase}
+.ticket .big{font-size:var(--t-display)}
+.nocam{font-size:var(--t-body)}
+.err{font-size:var(--t-body);color:var(--accent-text);margin:12px 0 14px}
+.field{font-size:var(--t-body);border-radius:var(--r-card);transition:box-shadow .15s ease}
+.field:focus{outline:none;box-shadow:0 0 0 2px var(--ink)}
+.field[aria-invalid="true"]{box-shadow:0 0 0 2px var(--accent-text)}
+.addcap{display:block;margin:12px auto 0;padding:0;border:0;background:none;font:700 var(--t-body) "Archivo",sans-serif;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px}
+/* radii: pill / card 20 / print 6 */
+.tile,.size,.item,.rv,.score,.ticket,.vf{border-radius:var(--r-card)}
+.sheet{border-radius:var(--r-card) var(--r-card) 0 0}
+.item img{border-radius:var(--r-print)}
+.dot,.vf{}
+/* greys merged */
+body{background-image:radial-gradient(var(--dot) 1.1px,transparent 1.1px)}
+.qty button,.chip{}
 </style>
 </head>
 <body>
@@ -204,24 +253,24 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
   <p class="sub" style="margin-top:12px">Take photos on your phone. We print them and deliver them to you.</p>
   <div class="tiles">
     <button class="tile on" data-mode="strip" aria-pressed="true">
-      <div class="strip" style="width:18px;height:54px;padding:1px 1px 0;gap:.5px;box-shadow:0 2px 5px rgba(0,0,0,.16);transform:rotate(-5deg)"><div style="background:#4A4A50"></div><div style="background:#6B6B72"></div><div style="background:#3C3C42"></div><div style="background:#5A5A61"></div></div>
-      <strong>Photo strip</strong><span class="mono">4 SHOTS · ₹79</span>
+      <div class="strip ticon" style="width:20px;height:60px;padding:1px 1px 0;gap:.5px;transform:rotate(-5deg)"><div><img alt=""></div><div><img alt=""></div><div><img alt=""></div><div><img alt=""></div></div>
+      <strong>Photo strip</strong><span class="meta"><span class="mono">4 SHOTS</span><b>₹79</b></span>
     </button>
     <button class="tile" data-mode="polaroid" aria-pressed="false">
-      <div style="width:36px;height:44px;padding:3px 3px 0;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.16);transform:rotate(6deg)"><div style="width:100%;aspect-ratio:1/1;background:#F0A04B"></div></div>
-      <strong>Polaroid</strong><span class="mono">1 SHOT · ₹79</span>
+      <div class="ticon" style="width:40px;height:49px;padding:3px 3px 0;background:#fff;transform:rotate(6deg)"><div style="width:100%;aspect-ratio:1/1;overflow:hidden"><img alt=""></div></div>
+      <strong>Polaroid</strong><span class="meta"><span class="mono">1 SHOT</span><b>₹79</b></span>
     </button>
   </div>
   <div class="push"></div>
   <button class="cta" id="startBtn"><i></i><span id="startLabel">Start</span></button>
   <p class="foot mono">PRINTED &amp; DELIVERED IN 3–5 DAYS</p>
-  <p class="foot mono" style="margin-top:6px;color:#8A867D">PROTOTYPE · QUESTIONS? <a class="mail" style="color:inherit"></a></p>
+  <p class="foot mono" style="margin-top:6px">PROTOTYPE · QUESTIONS? <a class="mail" style="color:inherit"></a></p>
 </section>
 
 <!-- CAMERA -->
 <section class="screen" id="camera">
   <div class="top">
-    <button class="ib" data-go="home" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="ib" data-go="home" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
     <div class="pill"><i></i><span id="camPill">PHOTO STRIP</span></div>
     <button class="ib" id="flipBtn" aria-label="Flip camera"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a8 8 0 0 1 14-3l2 2"/><path d="M20 4v4h-4"/><path d="M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M4 20v-4h4"/></svg></button>
   </div>
@@ -235,15 +284,15 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
   <div class="prog">
     <div id="progVis"></div>
     <div>
-      <span class="mono" style="font-size:11px;color:var(--muted)" id="sizeTag">ACTUAL SIZE · 2 × 6 IN</span>
+      <span class="mono" style="font-size:12px;color:var(--muted)" id="sizeTag">ACTUAL SIZE · 2 × 6 IN</span>
       <h2 id="poseH">Pose 1 of 4</h2>
-      <p class="sub" style="font-size:13px" id="poseP">Tap once, we take all 4. Change it up each time!</p>
+      <p class="sub" id="poseP">Tap once, we take all 4. Change it up each time!</p>
     </div>
   </div>
   <div class="push"></div>
   <div class="ctrl">
     <span class="small" aria-hidden="true"></span>
-    <button class="shutter" id="shutter" aria-label="Take photo"><svg width="26" height="26" viewBox="0 0 16 16"><path d="M8 2v12M2 8h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+    <button class="shutter" id="shutter" aria-label="Take photo"><svg width="26" height="26" viewBox="0 0 16 16"><path d="M8 2v12M2 8h12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></button>
     <button class="ib small fbtn" id="filterBtn" aria-label="Change filter">B&amp;W</button>
   </div>
   <p class="foot mono" id="camFoot">TAP ONCE · WE TAKE ALL 4 · 3 SEC APART</p>
@@ -252,7 +301,7 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
 <!-- PREVIEW -->
 <section class="screen" id="preview">
   <div class="top">
-    <button class="ib" id="retakeBtn" aria-label="Retake"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="ib" id="retakeBtn" aria-label="Retake"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
     <div class="pill"><i></i>DEVELOPING</div>
     <button class="ib" data-go="bag" aria-label="Print bag"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><b class="bagN" hidden>0</b></button>
   </div>
@@ -263,12 +312,13 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
   <div class="chips" id="chips">
     <button class="chip" data-f="bw">B&amp;W</button><button class="chip" data-f="sepia">SEPIA</button><button class="chip" data-f="warm">FILM</button><button class="chip" data-f="none">COLOR</button>
   </div>
-  <label class="lb" for="cap">CAPTION (OPTIONAL, PRINTED ON IT)</label>
-  <input class="field" id="cap" maxlength="26" placeholder="e.g. goa '26 ✦ us">
+  <button class="addcap" id="addCap" type="button">+ Add a caption</button>
+  <div id="capWrap" hidden><label class="lb" for="cap">CAPTION (PRINTED ON IT)</label>
+  <input class="field" id="cap" maxlength="26" placeholder="e.g. goa '26 ✦ us"></div>
   <label class="lb">SIZE</label>
   <div class="sizes" id="sizes"></div>
   <div style="display:flex;gap:10px;margin-top:18px">
-    <button class="cta ghost" id="dlBtn" style="flex:none;width:60px;padding:0" aria-label="Download photo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></button>
+    <button class="cta ghost" id="dlBtn" style="flex:none;width:60px;padding:0" aria-label="Download photo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></button>
     <button class="cta" id="addBtn" style="flex:1"><i></i><span id="addLabel">Order print</span></button>
   </div>
   <p class="foot mono">FREE DOWNLOAD · OR GET IT PRINTED</p>
@@ -277,7 +327,7 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
 <!-- BAG -->
 <section class="screen" id="bag">
   <div class="top">
-    <button class="ib" data-go="home" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="ib" data-go="home" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
     <div class="pill"><i></i>PRINT BAG</div>
     <span style="width:44px"></span>
   </div>
@@ -285,9 +335,9 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
   <div id="items"></div>
   <div id="bagBody">
     <div class="sum" id="sum"></div>
-    <button class="cta ghost" data-go="home" style="margin-top:14px;height:52px;font-size:16px">+ Take another</button>
+    <button class="cta ghost" data-go="home" style="margin-top:14px;height:52px">+ Take another</button>
     <form id="checkout" novalidate>
-      <h2 class="t" style="font-size:28px">Deliver to</h2>
+      <h2 class="t">Deliver to</h2>
       <label class="lb" for="nm">FULL NAME</label><input class="field" id="nm" autocomplete="name">
       <label class="lb" for="ph">PHONE</label><input class="field" id="ph" inputmode="numeric" maxlength="10" placeholder="10-digit mobile" autocomplete="tel">
       <label class="lb" for="addr">ADDRESS</label><textarea class="field" id="addr" rows="2" autocomplete="street-address"></textarea>
@@ -305,7 +355,7 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
     <div class="big" id="oid"></div>
     <p class="sub" style="margin:0 auto" id="osum"></p>
     <button class="cta" data-go="home" style="margin-top:22px"><i></i>Back to the booth</button>
-    <p class="sub" style="margin:16px auto 0;font-size:13px">Questions about your order? Write to <a class="mail" style="color:var(--ink);font-weight:700"></a></p>
+    <p class="sub" style="margin:16px auto 0">Questions about your order? Write to <a class="mail" style="color:var(--ink);font-weight:700"></a></p>
     <p class="proto">Prototype: no payment was taken and nothing ships. The real version opens PhonePe UPI here and sends print-ready files (2×6 in @ 300 DPI) to the lab.</p>
   </div>
 </section>
@@ -314,11 +364,11 @@ h2.t{font-style:italic;font-weight:900;font-size:34px;margin:18px 0 12px}
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="rvTitle" aria-hidden="true">
   <div class="grab"></div>
-  <div class="hd"><h2 id="rvTitle" style="font-style:italic;font-weight:900;font-size:26px">Reviews</h2>
-    <button class="ib" id="closeRv" aria-label="Close reviews"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="hd"><h2 id="rvTitle" style="font-style:italic;font-weight:900;font-size:28px">Reviews</h2>
+    <button class="ib" id="closeRv" aria-label="Close reviews"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="bd">
     <div class="score">
-      <div><div class="n">4.8</div><div class="stars" aria-hidden="true">★★★★★</div><div class="mono" style="font-size:10.5px;color:var(--muted);margin-top:4px">128 REVIEWS</div></div>
+      <div><div class="n">4.8</div><div class="stars" aria-hidden="true">★★★★★</div><div class="mono" style="font-size:12px;color:var(--muted);margin-top:4px">128 REVIEWS</div></div>
       <div class="dist" id="dist"></div>
     </div>
     <div class="loved"><span>Print quality</span><span>Cute packaging</span><span>Easy to use</span><span>Fast delivery</span><span>Fun gift</span></div>
@@ -368,6 +418,10 @@ addEventListener('resize',fitHero);addEventListener('orientationchange',fitHero)
 
 /* HERO: strip stays in front; prints sway gently; the selected product lifts slightly */
 $$('#deck .card').forEach((c,i)=>c.classList.add('s'+i));
+
+/* tile icons reuse the hero photos */
+(()=>{const st=$$('.card.strip img'),pl=$$('.card.pol img');$$('.tile .ticon.strip img').forEach((im,i)=>{if(st[i])im.src=st[i].src;});const pi=$('.tile[data-mode=polaroid] .ticon img');if(pi&&pl[0])pi.src=pl[0].src;})();
+$('#addCap').addEventListener('click',()=>{$('#addCap').hidden=true;$('#capWrap').hidden=false;$('#cap').focus();});
 /* HOME */
 $$('.tile').forEach(t=>t.addEventListener('click',()=>{
   S.mode=t.dataset.mode;
@@ -510,7 +564,7 @@ async function compose(watermark){
 }
 
 /* PREVIEW */
-function toPreview(){stopCam();$('#cap').value=S.caption;show('preview');renderSizes();render(true);}
+function toPreview(){stopCam();$('#cap').value=S.caption;$('#addCap').hidden=!!S.caption;$('#capWrap').hidden=!S.caption;show('preview');renderSizes();render(true);}
 async function render(animate){
   // no watermark: the on-screen preview is a small, low-res copy, so a screenshot isn't print quality.
   // The full 300 DPI file is only made for printing.
@@ -531,7 +585,7 @@ async function render(animate){
 }
 function renderSizes(){
   const P=PRICES[S.mode],Z=SIZES[S.mode];
-  const opts=[['regular','Regular',Z.regular],['mini','Phone mini',Z.mini],['both','Both','BIG + MINI']];
+  const opts=[['regular','Regular',Z.regular],['mini','Mini','PHONE CASE'],['both','Both','BIG + MINI']];
   $('#sizes').innerHTML=opts.map(([k,t,m])=>`<button class="size${S.size===k?' on':''}" data-s="${k}" aria-pressed="${S.size===k}">${k==='both'?'<span class="badge">SAVE ₹'+(P.regular+P.mini-P.both)+'</span>':''}<strong>${t}</strong><span class="mono">${m}</span><em>₹${P[k]}</em></button>`).join('');
   $$('.size').forEach(b=>b.addEventListener('click',()=>{S.size=b.dataset.s;renderSizes();$('#figBig').hidden=S.size==='mini';$('#figMini').hidden=S.size==='regular';}));
   $('#addLabel').textContent='Order print · ₹'+P[S.size];
@@ -584,6 +638,9 @@ $('#checkout').addEventListener('submit',e=>{
   let m='';
   if(!nm)m='Add your name.';else if(!/^[6-9]\d{9}$/.test(ph))m='Enter a valid 10-digit mobile number.';
   else if(ad.length<8)m='Add your full address.';else if(!/^[1-9]\d{5}$/.test(pin))m='Enter a valid 6-digit pincode.';else if(!city)m='Add your city.';
+  $$('#checkout .field').forEach(f=>f.removeAttribute('aria-invalid'));
+  const bad=m.startsWith('Add your name')?'#nm':m.includes('mobile')?'#ph':m.includes('address')?'#addr':m.includes('pincode')?'#pin':m.includes('city')?'#city':null;
+  if(bad){$(bad).setAttribute('aria-invalid','true');$(bad).focus();}
   $('#err').textContent=m;if(m)return;
   const t=totals(),n=S.bag.reduce((a,b)=>a+b.qty,0);
   $('#oid').textContent='#RB'+Math.floor(10000+Math.random()*89999);
