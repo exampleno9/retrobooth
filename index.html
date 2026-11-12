@@ -518,19 +518,28 @@ function cropTo(src,sw,sh,w,h,mirror){
   x.drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,w,h);return c;
 }
 function filterCanvas(src,f){
-  const w=src.width,h=src.height,c=mk(w,h),x=c.getContext('2d');x.drawImage(src,0,0);
-  if(f==='none')return c;
+  // Match the live viewfinder exactly: same CSS filter on the canvas where supported,
+  // with a pixel fallback (older Safari) that mirrors those CSS filters.
+  const w=src.width,h=src.height,c=mk(w,h),x=c.getContext('2d');
+  if(f==='none'){x.drawImage(src,0,0);return c;}
+  const native='filter' in x;
+  if(native){x.filter=CSSF[f];x.drawImage(src,0,0);x.filter='none';}else x.drawImage(src,0,0);
   const d=x.getImageData(0,0,w,h),p=d.data;
+  const sep=(r,g,b,a)=>[r*(1-.607*a)+g*.769*a+b*.189*a, r*.349*a+g*(1-.314*a)+b*.168*a, r*.272*a+g*.534*a+b*(1-.869*a)];
   for(let i=0;i<p.length;i+=4){
     let r=p[i],g=p[i+1],b=p[i+2];
-    if(f==='bw'){let y=.3*r+.59*g+.11*b;y=(y-128)*1.3+128;r=g=b=y;}
-    else if(f==='sepia'){const tr=.393*r+.769*g+.189*b,tg=.349*r+.686*g+.168*b,tb=.272*r+.534*g+.131*b;r=tr*.94;g=tg*.9;b=tb*.82;}
-    else{r=(r*1.06+8)*.88+22;g=(g+3)*.88+18;b=b*.88*.88+24;}
-    const n=(Math.random()-.5)*20;p[i]=r+n;p[i+1]=g+n;p[i+2]=b+n;
+    if(!native){
+      if(f==='bw'){let y=.2126*r+.7152*g+.0722*b;y=(y-128)*1.25+128;r=g=b=y;}
+      else if(f==='sepia'){[r,g,b]=sep(r,g,b,.9);}
+      else{[r,g,b]=sep(r,g,b,.25);const l=.2126*r+.7152*g+.0722*b;r=(l+(r-l)*1.1)*1.05;g=(l+(g-l)*1.1)*1.05;b=(l+(b-l)*1.1)*1.05;}
+    }
+    const n=(Math.random()-.5)*12; // light film grain, no brightness shift
+    p[i]=r+n;p[i+1]=g+n;p[i+2]=b+n;
   }
   x.putImageData(d,0,0);
-  const gr=x.createRadialGradient(w/2,h/2,Math.min(w,h)*.35,w/2,h/2,Math.max(w,h)*.78);
-  gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.32)');x.fillStyle=gr;x.fillRect(0,0,w,h);
+  // very soft vignette
+  const gr=x.createRadialGradient(w/2,h/2,Math.min(w,h)*.45,w/2,h/2,Math.max(w,h)*.8);
+  gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.12)');x.fillStyle=gr;x.fillRect(0,0,w,h);
   return c;
 }
 function paper(x,W,H){x.fillStyle='#FBFAF6';x.fillRect(0,0,W,H);for(let i=0;i<1800;i++){x.fillStyle=`rgba(60,40,20,${Math.random()*.05})`;x.fillRect(Math.random()*W,Math.random()*H,2,2);}}
